@@ -11,4 +11,4 @@
 * Internet Explorer 9+
 
 ## 文档
-[API](https://gitee.com/yarlajs/yarla/docs/)
+[API](https://gitee.com/yarlajs/yarla/tree/master/docs)
