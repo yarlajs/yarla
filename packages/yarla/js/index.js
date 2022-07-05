@@ -14194,19 +14194,19 @@
                                 }
                             });
                             xhr.addEventListener("abort", function () {
-                                reject(new HttpError(500.1, _isInstanceOf(xhr.response, Error) ? xhr.response.message : xhr.statusText));
+                                reject(buildError(xhr.response, xhr.status, xhr.statusText));
                                 if (_isFunction(ON_FINISHED)) {
                                     ON_FINISHED.call(xhr);
                                 }
                             });
                             xhr.addEventListener("error", function () {
-                                reject(new HttpError(500.2, _isInstanceOf(xhr.response, Error) ? xhr.response.message : xhr.statusText));
+                                reject(buildError(xhr.response, xhr.status, xhr.statusText));
                                 if (_isFunction(ON_FINISHED)) {
                                     ON_FINISHED.call(xhr);
                                 }
                             });
                             xhr.addEventListener("timeout", function () {
-                                reject(new HttpError(500.3, _isInstanceOf(xhr.response, Error) ? xhr.response.message : xhr.statusText));
+                                reject(buildError(xhr.response, xhr.status, xhr.statusText));
                                 if (_isFunction(ON_FINISHED)) {
                                     ON_FINISHED.call(xhr);
                                 }
@@ -14283,6 +14283,17 @@
                         return false;
                     }
                     return true;
+                }
+                /**
+                 * 
+                 * @param {any} error 
+                 */
+                function buildError(
+                    error,
+                    status,
+                    statusText
+                ) {
+                    return _isInstanceOf(error, HttpError) ? error : _isInstanceOf(error, Error) ? new HttpError(status, error.message || statusText) : new HttpError(status, statusText);
                 }
             }
         ),
