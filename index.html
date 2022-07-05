@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,initial-scale=1.0" name="viewport">
+    <meta content="Yarla.js - One-Stop Web Development Framework." name="description">
+    <meta content="pc,mobile" name="applicable-device">
+    <title>Yarla.js</title>
+</head>
+
+<body>
+    <section>
+        <!-- Outlet -->
+    </section>
+    <script type="text/javascript">
+        function __main__(Yarla) {
+            Yarla.dom.render(
+                Yarla.createElement(
+                    Yarla.shadow(
+                        function () {
+                            var t = Yarla.useState("Loading...");
+                            Yarla.useEffect(function () {
+                                Yarla.setTimeout(function () {
+                                    t[1]("Hello Yarla.js !");
+                                }, 1500);
+                            }, []);
+                            return Yarla.createElement("h1", {
+                                style: { textAlign: "center" }
+                            }, t[0]);
+                        }
+                    )
+                ),
+                document.body.firstElementChild
+            );
+        }
+    </script>
+    <script type="importmap">
+            {
+                "imports": {
+                    "yarla": "/node_modules/yarla/index.js",
+                    "@yarlajs/dom": "/node_modules/@yarlajs/dom/index.js",
+                    "@yarlajs/koa": "/node_modules/@yarlajs/koa/index.js",
+                    "@yarlajs/xhr": "/node_modules/@yarlajs/xhr/index.js",
+                    "@yarlajs/core": "/node_modules/@yarlajs/core/index.js",
+                    "@yarlajs/dom/": "/node_modules/@yarlajs/dom/",
+                    "@yarlajs/koa/": "/node_modules/@yarlajs/koa/",
+                    "@yarlajs/xhr/": "/node_modules/@yarlajs/xhr/",
+                    "@yarlajs/core/": "/node_modules/@yarlajs/core/",
+                    "/node_modules/@yarlajs/core/module/internal/nodeRequire/index.js": "/node_modules/@yarlajs/core/module/internal/nodeRequire/index.mjs"
+                }
+            }
+        </script>
+    <script type="module">
+        __main__(await import("yarla"));
+    </script>
+    <script nomodule src="./node_modules/yarla/js/index.js"></script>
+    <script nomodule>
+        __main__(Yarla);
+    </script>
+</body>
+
+</html>

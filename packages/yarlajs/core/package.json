@@ -1,0 +1,25 @@
+{
+    "name": "@yarlajs/core",
+    "type": "module",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "version": "0.1.0-alpha",
+    "license": "MIT",
+    "homepage": "https://gitee.com/yarlajs/yarla",
+    "description": "One-Stop Web Development Framework",
+    "dependencies": {
+        "acorn": "^8.7.1",
+        "acorn-walk": "^8.2.0",
+        "typescript": "^4.7.4"
+    },
+    "sideEffects": false,
+    "repository": {
+        "url": "https://gitee.com/yarlajs/yarla"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "author": {
+        "name": "WU HU"
+    }
+}

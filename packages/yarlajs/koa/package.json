@@ -1,0 +1,23 @@
+{
+    "name": "@yarlajs/koa",
+    "type": "module",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "version": "0.1.0-alpha",
+    "license": "MIT",
+    "homepage": "https://gitee.com/yarlajs/yarla",
+    "description": "One-Stop Web Development Framework",
+    "dependencies": {
+        "@yarlajs/core": "latest"
+    },
+    "sideEffects": false,
+    "repository": {
+        "url": "https://gitee.com/yarlajs/yarla"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "author": {
+        "name": "WU HU"
+    }
+}

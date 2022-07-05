@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "allowSyntheticDefaultImports": true,
+        "strictPropertyInitialization": true,
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "noImplicitThis": true,
+        "sourceMap": true,
+        "checkJs": true,
+        "allowJs": true,
+        "noEmit": true,
+        "jsxFragmentFactory": "Yarla.Fragment",
+        "jsxFactory": "Yarla.createElement",
+        "jsx": "react",
+        "lib": [
+            "DOM",
+            "ESNext"
+        ]
+    },
+    "exclude": [
+        "packages/yarla/js/*"
+    ]
+}

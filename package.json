@@ -1,0 +1,37 @@
+{
+    "type": "module",
+    "license": "MIT",
+    "private": true,
+    "homepage": "https://gitee.com/yarlajs/yarla",
+    "description": "One-Stop Web Development Framework",
+    "workspaces": [
+        "packages/yarla",
+        "packages/yarlajs/*"
+    ],
+    "devDependencies": {
+        "@types/node": "^18.0.1",
+        "@types/estree": "^0.0.51",
+        "@rollup/plugin-node-resolve": "^13.3.0",
+        "@rollup/plugin-commonjs": "^22.0.0",
+        "@rollup/plugin-eslint": "^8.0.2",
+        "eslint-plugin-es": "^4.1.0",
+        "eslint": "^8.19.0",
+        "rollup": "^2.75.7",
+        "terser": "^5.14.1"
+    },
+    "sideEffects": false,
+    "repository": {
+        "url": "https://gitee.com/yarlajs/yarla"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "scripts": {
+        "tsc": "tsc --noEmit",
+        "rollup": "rollup -i packages/yarla/index.js -o packages/yarla/js/index.js -m -f umd -n Yarla -p 'eslint={throwOnError:true,throwOnWarning:true}' -p 'commonjs={ignoreDynamicRequires:true,ignoreGlobal:true}' -p 'node-resolve={preferBuiltins:false}' --exports named --banner \"//! Copyright (C) 2022 by WU HU. All Rights Reserved.\"",
+        "terser": "terser packages/yarla/js/index.js -o packages/yarla/js/index.min.js -c --safari10 -m -f ascii_only --ecma 5"
+    },
+    "author": {
+        "name": "WU HU"
+    }
+}

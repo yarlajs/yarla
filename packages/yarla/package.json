@@ -1,0 +1,33 @@
+{
+    "name": "yarla",
+    "type": "module",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "version": "0.1.0-alpha",
+    "license": "MIT",
+    "homepage": "https://gitee.com/yarlajs/yarla",
+    "description": "One-Stop Web Development Framework",
+    "dependencies": {
+        "@yarlajs/core": "latest",
+        "@yarlajs/dom": "latest",
+        "@yarlajs/koa": "latest",
+        "@yarlajs/xhr": "latest"
+    },
+    "sideEffects": false,
+    "repository": {
+        "url": "https://gitee.com/yarlajs/yarla"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "exports": {
+        ".": {
+            "import": "./index.js",
+            "require": "./js/index.js",
+            "default": "./js/index.js"
+        }
+    },
+    "author": {
+        "name": "WU HU"
+    }
+}

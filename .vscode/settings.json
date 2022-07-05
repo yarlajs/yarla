@@ -1,0 +1,44 @@
+{
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "name": "storage.type.class.jsdoc",
+                "scope": "storage.type.class.jsdoc",
+                "settings": {
+                    "foreground": "#ffd40d",
+                    "fontStyle": "italic bold"
+                }
+            },
+            {
+                "name": "entity.name.type.instance.jsdoc",
+                "scope": "entity.name.type.instance.jsdoc",
+                "settings": {
+                    "foreground": "#4e4e53",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                "name": "variable.other.jsdoc",
+                "scope": "variable.other.jsdoc",
+                "settings": {
+                    "foreground": "#FD971F",
+                    "fontStyle": "italic"
+                }
+            }
+        ]
+    },
+    "explorer.compactFolders": false,
+    "explorer.copyRelativePathSeparator": "/",
+    "explorer.sortOrderLexicographicOptions": "upper",
+    "javascript.preferences.importModuleSpecifierEnding": "js",
+    "typescript.preferences.importModuleSpecifierEnding": "js",
+    "javascript.suggest.jsdoc.generateReturns": true,
+    "typescript.suggest.jsdoc.generateReturns": true,
+    "javascript.suggestionActions.enabled": false,
+    "typescript.suggestionActions.enabled": false,
+    "javascript.suggest.completeJSDocs": true,
+    "typescript.suggest.completeJSDocs": true,
+    "workbench.colorTheme": "Monokai",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.productIconTheme": "fluent-icons"
+}
