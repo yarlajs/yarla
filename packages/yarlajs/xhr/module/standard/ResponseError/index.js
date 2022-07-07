@@ -13,6 +13,7 @@ export default generateClass(
      * @param {XMLHttpRequest} init.xhr 
      * @param {Yarla.AnyObject<string | ReadonlyArray<string>>} init.headers 
      * @param {Yarla.xhr.ResponseType} init.responseType 
+     * @param {any} init.response 
      * @param {any} init.body 
      * @param {number} status 
      * @param {string} [message] 
@@ -27,6 +28,7 @@ export default generateClass(
             xhr: generateNormalDescriptor(init.xhr, true, true),
             headers: generateNormalDescriptor(init.headers, true, true),
             responseType: generateNormalDescriptor(init.responseType, true, true),
+            response: generateNormalDescriptor(init.response, true, true),
             body: generateNormalDescriptor(init.body, true, true),
         });
     },

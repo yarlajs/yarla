@@ -33,6 +33,7 @@ declare namespace xhr {
         readonly xhr: XMLHttpRequest;
         readonly headers: Yarla.AnyObject<string | ReadonlyArray<string>>;
         readonly responseType: Yarla.xhr.ResponseType;
+        readonly response: any;
         readonly body: any;
     }
     export interface Options {

@@ -230,6 +230,7 @@ export default defineProperties(generateClass(Reflect.BASE, {
                     xhr: xhr,
                     body: body,
                     responseType: responseType,
+                    response: xhr.response || xhr.responseText || null,
                     headers: isInstanceOf(headers, KVPair) ? headers.toJSON() : new KVPair(headers, true).toJSON(),
                 }, xhr.status, isInstanceOf(xhr.response, Error) ? xhr.response.message : xhr.statusText);
             }

@@ -15,5 +15,6 @@ declare interface ResponseErrorInit {
     readonly xhr: XMLHttpRequest;
     readonly headers: Yarla.AnyObject<string | ReadonlyArray<string>>;
     readonly responseType: Yarla.xhr.ResponseType;
+    readonly response: any;
     readonly body: any;
 }
