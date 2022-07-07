@@ -3,6 +3,8 @@ export default {
     INVALID_URL: "Invalid URL",
     /** @type {"Invalid module"} */
     INVALID_MODULE: "Invalid module",
+    /** @type {"Invalid protocol"} */
+    INVALID_PROTOCOL: "Invalid protocol",
     /** @type {"Invalid formatter"} */
     INVALID_FORMATTER: "Invalid formatter",
     /** @type {"Invalid result data"} */
@@ -47,8 +49,14 @@ export default {
     EXPRESSION_CAN_NOT_BE_EMPTY: "Expression can not be empty",
     /** @type {"Must have number in []"} */
     MUST_HAVE_NUMBER_IN_SQUARE: "Must have number in []",
+    /** @type {"Redirect exceeds maximum"} */
+    REDIRECT_EXCEEDS_MAXIMUM: "Redirect exceeds maximum",
     /** @type {"Not implemented"} */
     NOT_IMPLEMENTED: "Not implemented",
     /** @type {"Not supported"} */
     NOT_SUPPORTED: "Not supported",
+    /** @type {"Timeout"} */
+    TIMEOUT: "Timeout",
+    /** @type {"Abort"} */
+    ABORT: "Abort",
 };

@@ -28,11 +28,18 @@ declare namespace xhr {
         readonly responseURL: string;
         readonly response: T;
     }
+    export interface ResponseError extends Yarla.HttpError {
+        readonly url: string;
+        readonly xhr: XMLHttpRequest;
+        readonly headers: Yarla.AnyObject<string | ReadonlyArray<string>>;
+        readonly responseType: Yarla.xhr.ResponseType;
+        readonly body: any;
+    }
     export interface Options {
         readonly body?: any;
         readonly baseURI?: string;
         readonly timeout?: number;
-        readonly headers?: Headers | Yarla.AnyObject<string | ReadonlyArray<string>>;
+        readonly headers?: Headers | Yarla.KVPair<string | ReadonlyArray<string>> | Yarla.AnyObject<string | ReadonlyArray<string>>;
         readonly username?: string;
         readonly password?: string;
         readonly credentials?: boolean;

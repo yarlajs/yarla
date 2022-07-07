@@ -4,4 +4,4 @@
 
 import stream from "stream";
 
-export default function (readable: stream.Readable, maximum?: number): Promise<Buffer>;
+export default function (readable: stream.Readable | ReadableStream, maximum?: number): Promise<Buffer>;

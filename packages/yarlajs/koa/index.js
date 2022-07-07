@@ -26,6 +26,7 @@ import _isFile from "./lib/isFile/index.js";
 import _exists from "./lib/exists/index.js";
 import _hash from "./lib/hash/index.js";
 import _find from "./lib/find/index.js";
+import _read from "./lib/read/index.js";
 
 export {
     _PureResult as PureResult,
@@ -56,6 +57,7 @@ export {
     _exists as exists,
     _hash as hash,
     _find as find,
+    _read as read,
 }
 
 export default {
@@ -87,4 +89,5 @@ export default {
     exists: _exists,
     hash: _hash,
     find: _find,
+    read: _read,
 };

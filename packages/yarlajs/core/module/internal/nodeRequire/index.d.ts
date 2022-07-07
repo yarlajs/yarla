@@ -33,6 +33,7 @@ declare interface BuiltinModules {
     readonly "path": typeof import("path");
     readonly "zlib": typeof import("zlib");
     readonly "http": typeof import("http");
+    readonly "https": typeof import("https");
     readonly "crypto": typeof import("crypto");
     readonly "module": typeof import("module");
     readonly "stream": typeof import("stream");

@@ -9,6 +9,7 @@ declare const _: Message;
 declare interface Message {
     readonly INVALID_URL: "Invalid URL";
     readonly INVALID_MODULE: "Invalid module";
+    readonly INVALID_PROTOCOL: "Invalid protocol";
     readonly INVALID_FORMATTER: "Invalid formatter";
     readonly INVALID_RESULT_DATA: "Invalid result data";
     readonly ILLEGAL_INVOCATION: "Illegal invocation";
@@ -31,6 +32,9 @@ declare interface Message {
     readonly STREAM_CLOSED_BEFORE_ENDING: "Stream closed before ending";
     readonly EXPRESSION_CAN_NOT_BE_EMPTY: "Expression can not be empty";
     readonly MUST_HAVE_NUMBER_IN_SQUARE: "Must have number in []";
+    readonly REDIRECT_EXCEEDS_MAXIMUM: "Redirect exceeds maximum";
     readonly NOT_IMPLEMENTED: "Not implemented";
     readonly NOT_SUPPORTED: "Not supported";
+    readonly TIMEOUT: "Timeout";
+    readonly ABORT: "Abort";
 }

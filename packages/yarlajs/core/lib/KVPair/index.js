@@ -1,13 +1,9 @@
 import NOOP from "../../module/constant/NOOP/index.js";
-import globalThis from "../../module/internal/globalThis/index.js";
 import hasOwnProperty from "../../module/standard/hasOwnProperty/index.js";
 import compareIgnoreCase from "../../module/standard/compareIgnoreCase/index.js";
 import generateMethodDescriptor from "../../module/standard/generateMethodDescriptor/index.js";
 import generateClass from "../../module/standard/generateClass/index.js";
-import isInstanceOf from "../isInstanceOf/index.js";
-import isIterable from "../isIterable/index.js";
 import isObject from "../isObject/index.js";
-import isArray from "../isArray/index.js";
 import Reflect from "../Reflect/index.js";
 import entries from "../entries/index.js";
 import values from "../values/index.js";
@@ -26,39 +22,16 @@ export default generateClass(
         ignoreCase
     ) {
         Reflect.defineInternal(this, {}, "source");
-        if (isInstanceOf(source, globalThis.Headers)) {
-            Reflect.defineInternal(this, !!ignoreCase, "ignoreCase");
-            source.forEach(
-                /**
-                 * 
-                 * @this {Yarla.KVPair}
-                 * @param {string} value 
-                 * @param {string} key 
-                 */
-                function (value, key) {
-                    this.set(key, value);
-                },
-                this
-            );
-        } else if (isIterable(source)) {
+        if (isObject(source)) {
             Reflect.defineInternal(this, !!ignoreCase, "ignoreCase");
             for (var
                 i = 0,
-                // eslint-disable-next-line es/no-array-from
-                s = Array.from(source),
+                s = entries(source),
                 l = s.length;
                 i < l;
                 i++
             ) {
-                var n = s[i];
-                if (isArray(n) && n.length === 2) {
-                    this.set(n[0], n[1]);
-                }
-            }
-        } else if (isObject(source)) {
-            Reflect.defineInternal(this, !!ignoreCase, "ignoreCase");
-            for (var name in source) {
-                this.set(name, source[name]);
+                this.set(s[i][0], s[i][1]);
             }
         } else {
             Reflect.defineInternal(this, !!source, "ignoreCase");

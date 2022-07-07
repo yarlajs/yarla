@@ -92,7 +92,7 @@ export default (function () {
                 return skrinkSerializer(
                     function (req, res) {
                         return (function (ctx) {
-                            var AGENT = ctx.UA;
+                            var OLDER = ctx.IE;
                             var ARGCR = ctx.range;
                             var ARGCM = ctx.method;
                             var ARGCP = ctx.pathname;
@@ -231,7 +231,6 @@ export default (function () {
                                 var SIZE;
                                 var DATE;
                                 var NEED;
-                                var MSIE = /\b(?:Trident|MSIE|Edge)\b/i.test(AGENT);
                                 var NOCACHE = "no-cache";
                                 var CACHING = "max-age=0";
                                 serialize(ctx).forEach(
@@ -306,7 +305,7 @@ export default (function () {
                                 }
                                 if (isInstanceOf(result, DataResult)) {
                                     NAME = result.filename;
-                                    TYPE = result.mimetype || mimetype(MSIE, NAME);
+                                    TYPE = result.mimetype || mimetype(OLDER, NAME);
                                     INFO = result.modified;
                                     DATA = result.data;
                                     if (INFO) {
@@ -342,7 +341,7 @@ export default (function () {
                                 if (isInstanceOf(result, FileResult)) {
                                     PATH = result.path;
                                     NAME = result.filename;
-                                    TYPE = result.mimetype || mimetype(MSIE, NAME || PATH);
+                                    TYPE = result.mimetype || mimetype(OLDER, NAME || PATH);
                                     INFO = statInfo(PATH);
                                     DATE = INFO.mtime;
                                     SIZE = INFO.size;
@@ -411,7 +410,7 @@ export default (function () {
                                 if (NAME) {
                                     res.setHeader(httpHeader.CONTENT_DISPOSITION, [
                                         "attachment",
-                                        "filename=" + (MSIE ? encodeURIComponent(NAME) : Buffer.from(NAME, definition.UTF8).toString(definition.LATIN1)),
+                                        "filename=" + (OLDER ? encodeURIComponent(NAME) : Buffer.from(NAME, definition.UTF8).toString(definition.LATIN1)),
                                         "filename*=UTF-8''" + encodeURIComponent(NAME),
                                     ].join("; "));
                                 }
@@ -623,7 +622,7 @@ export default (function () {
                 opts && opts.compressTypes || [],
                 opts && opts.compressLeast || 1024,
                 opts && opts.compressLevel || 5,
-                opts && opts.customHeaders || new Headers(),
+                opts && opts.customHeaders || new KVPair(),
                 opts && opts.debugger || HTTP_DEBUGGER,
                 opts && opts.mimetype || HTTP_MIMETYPE,
                 opts && opts.favicon || "favicon.ico",

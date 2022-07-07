@@ -241,13 +241,15 @@ export default (function () {
                  * @this {any}
                  */
                 function () {
-                    return Reflect ? Reflect.construct(getPrototypeOf(constructor), arguments, constructor) : getPrototypeOf(constructor).apply(this, arguments);
+                    return Reflect ? Reflect.construct(constructor, arguments, getPrototypeOf(this).constructor) : constructor.apply(this, arguments);
                 }
             );
-        }(target.constructor)).apply(target, flat(arguments, 1));
+        }(getPrototypeOf(get(target, [Symbol.for("Yarla.Super.constructor")])))).apply(target, flat(arguments, 1));
     }
     var maps = new WeakMap();
     var expr = {
+        /** @type {ReadonlyArray<PropertyKey>} */
+        IE: [Symbol.for("Yarla.IE")],
         /** @type {ReadonlyArray<PropertyKey>} */
         IP: [Symbol.for("Yarla.IP")],
         /** @type {ReadonlyArray<PropertyKey>} */

@@ -32,7 +32,7 @@ export default function (
          */
         function () {
             if (this instanceof WrapConstructor) {
-                return constructor.apply(this, arguments);
+                return constructor.apply(defineProperty(this, Symbol.for("Yarla.Super.constructor"), generateNormalDescriptor(WrapConstructor)), arguments);
             }
             throw new Error(message.FAILED_TO_CONSTRUCT_INSPANCE);
         }

@@ -26,6 +26,7 @@ declare interface Reflect {
 }
 
 declare interface PropertyExprMap {
+    readonly IE: ReadonlyArray<PropertyKey>;
     readonly IP: ReadonlyArray<PropertyKey>;
     readonly UA: ReadonlyArray<PropertyKey>;
     readonly BODY: ReadonlyArray<PropertyKey>;

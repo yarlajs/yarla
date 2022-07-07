@@ -17,10 +17,22 @@ import Reflect from "@yarlajs/core/lib/Reflect/index.js";
 import Promise from "@yarlajs/core/lib/Promise/index.js";
 import Buffer from "@yarlajs/core/lib/Buffer/index.js";
 import KVPair from "@yarlajs/core/lib/KVPair/index.js";
-import read from "../read/index.js";
+import read from "@yarlajs/core/lib/read/index.js";
 
 export default (function () {
     return defineProperties(generateClass(Reflect.BASE, {
+        IE: generateGetterDescriptor(
+            /**
+             * 
+             * @this {Yarla.koa.Context}
+             * @returns {boolean} 
+             */
+            function () {
+                return Reflect.once(this, Reflect.expr.IE, function () {
+                    return /\b(?:Trident|MSIE|Edge)\b/i.test(this.UA);
+                });
+            }
+        ),
         IP: generateGetterDescriptor(
             /**
              * 
@@ -345,18 +357,14 @@ export default (function () {
                 return Reflect.getInternal(this).headers.delete(name);
             }
         ),
-        pipe: generateMethodDescriptor(
+        stream: generateMethodDescriptor(
             /**
              * 
-             * @this {Yarla.koa.Context}
-             * @param {Yarla.Object<T, NodeJS.WritableStream>} writable 
-             * @returns {T}
-             * @template T
+             * @this {Yarla.koa.Context} 
+             * @returns {NodeJS.ReadableStream}
              */
-            function (
-                writable
-            ) {
-                return Reflect.getInternal(this).request.pipe(writable);
+            function () {
+                return Reflect.getInternal(this).request;
             }
         ),
         readline: generateMethodDescriptor(

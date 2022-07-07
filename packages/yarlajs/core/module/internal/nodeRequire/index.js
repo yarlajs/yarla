@@ -7,6 +7,7 @@
  * @property {typeof import("path")} `path`
  * @property {typeof import("zlib")} `zlib`
  * @property {typeof import("http")} `http`
+ * @property {typeof import("https")} `https`
  * @property {typeof import("crypto")} `crypto`
  * @property {typeof import("module")} `module`
  * @property {typeof import("stream")} `stream`

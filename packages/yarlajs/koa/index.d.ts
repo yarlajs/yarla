@@ -32,6 +32,7 @@ import _isFile from "./lib/isFile/index.js";
 import _exists from "./lib/exists/index.js";
 import _hash from "./lib/hash/index.js";
 import _find from "./lib/find/index.js";
+import _read from "./lib/read/index.js";
 
 export = koa;
 
@@ -65,6 +66,7 @@ declare namespace koa {
         _exists as exists,
         _hash as hash,
         _find as find,
+        _read as read,
     }
     export interface PureResult {
         invoke(req: http.IncomingMessage, res: http.ServerResponse): Promise<void>;
@@ -211,6 +213,7 @@ declare namespace koa {
         | ForbiddenResult
         | UnauthorizedResult;
     export interface Context {
+        readonly IE: boolean;
         readonly IP: string;
         readonly UA: string;
         readonly host: string;
@@ -233,7 +236,7 @@ declare namespace koa {
         setResponseHeader(name: string, value: string | ReadonlyArray<string>): void;
         deleteResponseCookie(name: string): boolean;
         deleteResponseHeader(name: string): boolean;
-        pipe<T extends NodeJS.WritableStream>(writable: T): T;
+        stream(): NodeJS.ReadableStream;
         readline(): AsyncIterable<string>;
         read(original: true): Promise<Buffer>;
         read(): Promise<Yarla.AnyObject>;

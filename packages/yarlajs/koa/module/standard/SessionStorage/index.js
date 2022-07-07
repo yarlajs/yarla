@@ -4,7 +4,6 @@ import clearTimeout from "@yarlajs/core/module/internal/clearTimeout/index.js";
 import defineProperties from "@yarlajs/core/module/standard/defineProperties/index.js";
 import generateMethodDescriptor from "@yarlajs/core/module/standard/generateMethodDescriptor/index.js";
 import generateClass from "@yarlajs/core/module/standard/generateClass/index.js";
-import isObject from "@yarlajs/core/lib/isObject/index.js";
 import Promise from "@yarlajs/core/lib/Promise/index.js";
 import Reflect from "@yarlajs/core/lib/Reflect/index.js";
 import keys from "@yarlajs/core/lib/keys/index.js";
@@ -126,7 +125,7 @@ export default defineProperties(generateClass(Reflect.BASE, {
                     del(d, k);
                     del(t, k);
                 }, s * 60 * 1000));
-                if (isObject(r)) {
+                if (r.unref) {
                     r.unref();
                 }
             } else {

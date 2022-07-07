@@ -59,6 +59,7 @@ import {
     isDate as _isDate,
     isNull as _isNull,
     isNullOrUndefined as _isNullOrUndefined,
+    isNullOrEmptyArray as _isNullOrEmptyArray,
     isNullOrEmptyString as _isNullOrEmptyString,
     isNullOrEmptyObject as _isNullOrEmptyObject,
     isUndefined as _isUndefined,
@@ -76,9 +77,13 @@ import {
     isArrayBufferView as _isArrayBufferView,
     isArrayBuffer as _isArrayBuffer,
     isFormData as _isFormData,
+    isReadable as _isReadable,
+    isWritable as _isWritable,
+    isHeaders as _isHeaders,
     isBlob as _isBlob,
     atob as _atob,
     btoa as _btoa,
+    read as _read,
 } from "@yarlajs/core";
 import dom from "@yarlajs/dom";
 import koa from "@yarlajs/koa";
@@ -148,6 +153,7 @@ export {
     _isDate as isDate,
     _isNull as isNull,
     _isNullOrUndefined as isNullOrUndefined,
+    _isNullOrEmptyArray as isNullOrEmptyArray,
     _isNullOrEmptyString as isNullOrEmptyString,
     _isNullOrEmptyObject as isNullOrEmptyObject,
     _isUndefined as isUndefined,
@@ -165,9 +171,13 @@ export {
     _isArrayBufferView as isArrayBufferView,
     _isArrayBuffer as isArrayBuffer,
     _isFormData as isFormData,
+    _isReadable as isReadable,
+    _isWritable as isWritable,
+    _isHeaders as isHeaders,
     _isBlob as isBlob,
     _atob as atob,
     _btoa as btoa,
+    _read as read,
 }
 
 export default {
@@ -234,6 +244,7 @@ export default {
     isDate: _isDate,
     isNull: _isNull,
     isNullOrUndefined: _isNullOrUndefined,
+    _isNullOrEmptyArray: _isNullOrEmptyArray,
     isNullOrEmptyString: _isNullOrEmptyString,
     isNullOrEmptyObject: _isNullOrEmptyObject,
     isUndefined: _isUndefined,
@@ -251,7 +262,11 @@ export default {
     isArrayBufferView: _isArrayBufferView,
     isArrayBuffer: _isArrayBuffer,
     isFormData: _isFormData,
+    isReadable: _isReadable,
+    isWritable: _isWritable,
+    isHeaders: _isHeaders,
     isBlob: _isBlob,
     atob: _atob,
     btoa: _btoa,
+    read: _read,
 };

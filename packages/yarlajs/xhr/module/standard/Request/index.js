@@ -1,10 +1,11 @@
 import NOOP from "@yarlajs/core/module/constant/NOOP/index.js";
-import globalThis from "@yarlajs/core/module/internal/globalThis/index.js";
 import httpHeader from "@yarlajs/core/module/constant/httpHeader/index.js";
 import httpContent from "@yarlajs/core/module/constant/httpContent/index.js";
+import generateClass from "@yarlajs/core/module/standard/generateClass/index.js";
 import defineProperties from "@yarlajs/core/module/standard/defineProperties/index.js";
 import generateMethodDescriptor from "@yarlajs/core/module/standard/generateMethodDescriptor/index.js";
-import generateClass from "@yarlajs/core/module/standard/generateClass/index.js";
+import isNullOrEmptyString from "@yarlajs/core/lib/isNullOrEmptyString/index.js";
+import isNullOrEmptyArray from "@yarlajs/core/lib/isNullOrEmptyArray/index.js";
 import isURLSearchParams from "@yarlajs/core/lib/isURLSearchParams/index.js";
 import isArrayBufferView from "@yarlajs/core/lib/isArrayBufferView/index.js";
 import isArrayBuffer from "@yarlajs/core/lib/isArrayBuffer/index.js";
@@ -13,7 +14,6 @@ import isFormData from "@yarlajs/core/lib/isFormData/index.js";
 import isFunction from "@yarlajs/core/lib/isFunction/index.js";
 import isBoolean from "@yarlajs/core/lib/isBoolean/index.js";
 import concatUrl from "@yarlajs/core/lib/concatUrl/index.js";
-import HttpError from "@yarlajs/core/lib/HttpError/index.js";
 import defaults from "@yarlajs/core/lib/defaults/index.js";
 import isNumber from "@yarlajs/core/lib/isNumber/index.js";
 import isString from "@yarlajs/core/lib/isString/index.js";
@@ -22,10 +22,11 @@ import Reflect from "@yarlajs/core/lib/Reflect/index.js";
 import queries from "@yarlajs/core/lib/queries/index.js";
 import isBasic from "@yarlajs/core/lib/isBasic/index.js";
 import isBlob from "@yarlajs/core/lib/isBlob/index.js";
-import env from "../../constant/env/index.js";
+import KVPair from "@yarlajs/core/lib/KVPair/index.js";
 import XMLHttpRequest from "../XMLHttpRequest/index.js";
+import ResponseError from "../ResponseError/index.js";
 import Response from "../Response/index.js";
-
+import env from "../../constant/env/index.js";
 
 export default defineProperties(generateClass(Reflect.BASE, {
     cancel: generateMethodDescriptor(
@@ -77,7 +78,7 @@ export default defineProperties(generateClass(Reflect.BASE, {
                     ON_PROGRESS,
                     ON_FINISHED
                 ) {
-                    var SEP, RES, TYPE, N;
+                    var SEP, RES, TYPE;
                     return new Promise(function (resolve, reject) {
                         if (xhr) {
                             xhr.abort();
@@ -103,7 +104,7 @@ export default defineProperties(generateClass(Reflect.BASE, {
                         xhr.addEventListener("load", function () {
                             var status = xhr.status || 200;
                             if (status < 200 || status >= 300) {
-                                reject(new HttpError(status, xhr.responseText));
+                                reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                             } else {
                                 resolve(Response.init(xhr, url, RESPONSE_TYPE));
                             }
@@ -112,19 +113,19 @@ export default defineProperties(generateClass(Reflect.BASE, {
                             }
                         });
                         xhr.addEventListener("abort", function () {
-                            reject(buildError(xhr.response, xhr.status, xhr.statusText));
+                            reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                             if (isFunction(ON_FINISHED)) {
                                 ON_FINISHED.call(xhr);
                             }
                         });
                         xhr.addEventListener("error", function () {
-                            reject(buildError(xhr.response, xhr.status, xhr.statusText));
+                            reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                             if (isFunction(ON_FINISHED)) {
                                 ON_FINISHED.call(xhr);
                             }
                         });
                         xhr.addEventListener("timeout", function () {
-                            reject(buildError(xhr.response, xhr.status, xhr.statusText));
+                            reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                             if (isFunction(ON_FINISHED)) {
                                 ON_FINISHED.call(xhr);
                             }
@@ -145,17 +146,14 @@ export default defineProperties(generateClass(Reflect.BASE, {
                             xhr.setRequestHeader(httpHeader.CONTENT_TYPE, TYPE);
                         }
                         if (HEADERS) {
-                            if (isInstanceOf(HEADERS, globalThis.Headers)) {
-                                HEADERS.forEach(function (value, name) {
-                                    xhr.setRequestHeader(name, String(value));
-                                });
-                            } else {
-                                for (var name in HEADERS) {
-                                    if (N = HEADERS[name]) {
-                                        xhr.setRequestHeader(name, String(N));
-                                    }
-                                }
+                            if (!isInstanceOf(HEADERS, KVPair)) {
+                                HEADERS = new KVPair(HEADERS, true);
                             }
+                            HEADERS.forEach(function (value, name) {
+                                if (isValidHeaders(value)) {
+                                    xhr.setRequestHeader(name, String(value));
+                                }
+                            });
                         }
                         if (isNumber(TIMEOUT)) {
                             xhr.timeout = TIMEOUT;
@@ -189,29 +187,51 @@ export default defineProperties(generateClass(Reflect.BASE, {
              * 
              * @param {any} argc 
              */
-            function isSerializable(
+            function isValidHeaders(
                 argc
             ) {
-                if (isBlob(argc) ||
-                    isFormData(argc) ||
-                    isArrayBuffer(argc) ||
-                    isArrayBufferView(argc) ||
-                    isURLSearchParams(argc) ||
-                    isBasic(argc)) {
-                    return false;
-                }
-                return true;
+                return isNullOrEmptyString(argc)
+                    || isNullOrEmptyArray(argc) ? false : true;
             }
             /**
              * 
-             * @param {any} error 
+             * @param {any} argc 
              */
-            function buildError(
-                error,
-                status,
-                statusText
+            function isSerializable(
+                argc
             ) {
-                return isInstanceOf(error, HttpError) ? error : isInstanceOf(error, Error) ? new HttpError(status, error.message || statusText) : new HttpError(status, statusText);
+                return isBlob(argc)
+                    || isFormData(argc)
+                    || isArrayBuffer(argc)
+                    || isArrayBufferView(argc)
+                    || isURLSearchParams(argc)
+                    || isBasic(argc) ? false : true;
+            }
+            /**
+             * 
+             * @param {string} url 
+             * @param {XMLHttpRequest} xhr 
+             * @param {Headers | Yarla.KVPair<string | ReadonlyArray<string>> | Yarla.AnyObject<string | ReadonlyArray<string>>} headers 
+             * @param {Yarla.xhr.ResponseType} responseType 
+             * @param {any} body 
+             */
+            function serializeError(
+                url,
+                xhr,
+                headers,
+                responseType,
+                body
+            ) {
+                if (isInstanceOf(xhr.response, ResponseError)) {
+                    return xhr.response;
+                }
+                return new ResponseError({
+                    url: url,
+                    xhr: xhr,
+                    body: body,
+                    responseType: responseType,
+                    headers: isInstanceOf(headers, KVPair) ? headers.toJSON() : new KVPair(headers, true).toJSON(),
+                }, xhr.status, isInstanceOf(xhr.response, Error) ? xhr.response.message : xhr.statusText);
             }
         }
     ),
