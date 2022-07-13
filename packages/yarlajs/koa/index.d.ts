@@ -153,7 +153,7 @@ declare namespace koa {
         heartbeat(token: string): Promise<void>;
     }
     export interface SessionStorageInitializationOptions {
-        readonly expires: number;
+        readonly expire: number;
     }
     export interface TokenGenerator {
         generate(context: Context): Promise<string>;

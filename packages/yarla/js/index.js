@@ -282,6 +282,8 @@
         INVALID_URL: "Invalid URL",
         /** @type {"Invalid module"} */
         INVALID_MODULE: "Invalid module",
+        /** @type {"Invalid protocol"} */
+        INVALID_PROTOCOL: "Invalid protocol",
         /** @type {"Invalid formatter"} */
         INVALID_FORMATTER: "Invalid formatter",
         /** @type {"Invalid result data"} */
@@ -326,10 +328,16 @@
         EXPRESSION_CAN_NOT_BE_EMPTY: "Expression can not be empty",
         /** @type {"Must have number in []"} */
         MUST_HAVE_NUMBER_IN_SQUARE: "Must have number in []",
+        /** @type {"Redirect exceeds maximum"} */
+        REDIRECT_EXCEEDS_MAXIMUM: "Redirect exceeds maximum",
         /** @type {"Not implemented"} */
         NOT_IMPLEMENTED: "Not implemented",
         /** @type {"Not supported"} */
         NOT_SUPPORTED: "Not supported",
+        /** @type {"Timeout"} */
+        TIMEOUT: "Timeout",
+        /** @type {"Abort"} */
+        ABORT: "Abort",
     };
 
     var globalThis = (
@@ -607,7 +615,7 @@
              */
             function () {
                 if (this instanceof WrapConstructor) {
-                    return constructor.apply(this, arguments);
+                    return constructor.apply(defineProperty(this, Symbol.for("Yarla.Super.constructor"), generateNormalDescriptor(WrapConstructor)), arguments);
                 }
                 throw new Error(message.FAILED_TO_CONSTRUCT_INSPANCE);
             }
@@ -1832,13 +1840,15 @@
                      * @this {any}
                      */
                     function () {
-                        return Reflect ? Reflect.construct(getPrototypeOf(constructor), arguments, constructor) : getPrototypeOf(constructor).apply(this, arguments);
+                        return Reflect ? Reflect.construct(constructor, arguments, getPrototypeOf(this).constructor) : constructor.apply(this, arguments);
                     }
                 );
-            }(target.constructor)).apply(target, _flat(arguments, 1));
+            }(getPrototypeOf(_get$1(target, [Symbol.for("Yarla.Super.constructor")])))).apply(target, _flat(arguments, 1));
         }
         var maps = new WeakMap();
         var expr = {
+            /** @type {ReadonlyArray<PropertyKey>} */
+            IE: [Symbol.for("Yarla.IE")],
             /** @type {ReadonlyArray<PropertyKey>} */
             IP: [Symbol.for("Yarla.IP")],
             /** @type {ReadonlyArray<PropertyKey>} */
@@ -3436,10 +3446,30 @@
             argc,
             inherit
         ) {
-            var r = [];
-            for (var n in argc) {
-                if (inherit || hasOwnProperty(argc, n)) {
-                    r.push([n, argc[n]]);
+            var r = [], n;
+            if (_isIterable(argc)) {
+                for (var
+                    i = 0,
+                    // eslint-disable-next-line es/no-array-from
+                    s = Array.from(argc),
+                    l = s.length;
+                    i < l;
+                    i++
+                ) {
+                    n = s[i];
+                    if (_isArray(n)) {
+                        r.push(n);
+                    }
+                }
+            } else if (_isObject(argc) && _isFunction(argc.forEach)) {
+                argc.forEach(function (v, k) {
+                    r.push([k, v]);
+                });
+            } else {
+                for (n in argc) {
+                    if (inherit || hasOwnProperty(argc, n)) {
+                        r.push([n, argc[n]]);
+                    }
                 }
             }
             // @ts-ignore
@@ -3506,39 +3536,16 @@
             ignoreCase
         ) {
             Reflect.defineInternal(this, {}, "source");
-            if (_isInstanceOf(source, globalThis.Headers)) {
-                Reflect.defineInternal(this, !!ignoreCase, "ignoreCase");
-                source.forEach(
-                    /**
-                     * 
-                     * @this {Yarla.KVPair}
-                     * @param {string} value 
-                     * @param {string} key 
-                     */
-                    function (value, key) {
-                        this.set(key, value);
-                    },
-                    this
-                );
-            } else if (_isIterable(source)) {
+            if (_isObject(source)) {
                 Reflect.defineInternal(this, !!ignoreCase, "ignoreCase");
                 for (var
                     i = 0,
-                    // eslint-disable-next-line es/no-array-from
-                    s = Array.from(source),
+                    s = _entries(source),
                     l = s.length;
                     i < l;
                     i++
                 ) {
-                    var n = s[i];
-                    if (_isArray(n) && n.length === 2) {
-                        this.set(n[0], n[1]);
-                    }
-                }
-            } else if (_isObject(source)) {
-                Reflect.defineInternal(this, !!ignoreCase, "ignoreCase");
-                for (var name in source) {
-                    this.set(name, source[name]);
+                    this.set(s[i][0], s[i][1]);
                 }
             } else {
                 Reflect.defineInternal(this, !!source, "ignoreCase");
@@ -3804,20 +3811,12 @@
             status,
             message
         ) {
-            return Reflect.defineInternal(Reflect.callSuper(this, "[" + status + "] " + (message || httpStatus[status] || "Unknown")), status, "status");
+            return defineProperties(Reflect.callSuper(this, message || httpStatus[status] || "Unknown"), {
+                status: generateNormalDescriptor(status, true, true),
+            });
         },
         {
-            name: generateNormalDescriptor("HttpError"),
-            status: generateGetterDescriptor(
-                /**
-                 * 
-                 * @this {any}
-                 * @returns {number}
-                 */
-                function () {
-                    return Reflect.getInternal(this).status;
-                }
-            ),
+            name: generateNormalDescriptor("HttpError", true, true),
         },
         Error,
         "HttpError"
@@ -4023,7 +4022,82 @@
         }
     }());
 
-    var forceUpdate = zone.forceUpdate;
+    var ReadableStream = (function (ReadableStream) {
+        return defineProperties(ReadableStream, {
+            from: generateMethodDescriptor(
+                /**
+                 * 
+                 * @param {import("stream").Readable} nodeStream 
+                 * @param {"bytes"} [type]
+                 */
+                function (
+                    nodeStream,
+                    type
+                ) {
+                    return new ReadableStream({
+                        // @ts-ignore
+                        type: type,
+                        cancel: function (reason) {
+                            nodeStream.destroy(reason);
+                        },
+                        start: function (controller) {
+                            nodeStream.on("close", function () {
+                                if (!nodeStream.readableEnded) {
+                                    controller.error(new Error(message.STREAM_CLOSED_BEFORE_ENDING));
+                                }
+                            });
+                            nodeStream.on("error", function (reason) {
+                                controller.error(reason);
+                            });
+                            nodeStream.on("data", function (chunk) {
+                                controller.enqueue(chunk);
+                                nodeStream.pause();
+                            });
+                            nodeStream.on("end", function () {
+                                controller.close();
+                            });
+                        },
+                        pull: function () {
+                            nodeStream.resume();
+                        },
+                    });
+                }
+            ),
+        });
+    }(globalThis.ReadableStream || generateClass(function () {
+        throw new Error(message.NOT_SUPPORTED);
+    }, {
+        locked: generateGetterDescriptor(
+            function () {
+                throw new Error(message.NOT_SUPPORTED);
+            }
+        ),
+        cancel: generateMethodDescriptor(
+            function () {
+                throw new Error(message.NOT_SUPPORTED);
+            }
+        ),
+        getReader: generateMethodDescriptor(
+            function () {
+                throw new Error(message.NOT_SUPPORTED);
+            }
+        ),
+        pipeThrough: generateMethodDescriptor(
+            function () {
+                throw new Error(message.NOT_SUPPORTED);
+            }
+        ),
+        pipeTo: generateMethodDescriptor(
+            function () {
+                throw new Error(message.NOT_SUPPORTED);
+            }
+        ),
+        tee: generateMethodDescriptor(
+            function () {
+                throw new Error(message.NOT_SUPPORTED);
+            }
+        ),
+    }, NOOP, "ReadableStream")));
 
     var createElement$1 = skrinkSerializer(
         function () {
@@ -4243,6 +4317,8 @@
             });
         }
     );
+
+    var forceUpdate = zone.forceUpdate;
 
     var useEffect = skrinkSerializer(
         /**
@@ -4949,6 +5025,21 @@
         }
     );
 
+    var _isNullOrEmptyArray = skrinkSerializer(
+        /**
+         * 
+         * Determines if the input parameter is null or undefined or an empty array.
+         * 
+         * @param {any} argc Any object.
+         * @returns {argc is null | undefined | ""}
+         */
+        function (
+            argc
+        ) {
+            return _isNullOrUndefined(argc) || _isArray(argc) && argc.length === 0;
+        }
+    );
+
     var _isNullOrEmptyObject = skrinkSerializer(
         /**
          * 
@@ -5183,6 +5274,21 @@
         return true;
     }
 
+    var _isHeaders = skrinkSerializer(
+        /**
+         * 
+         * Determines if the input parameter is a Headers.
+         * 
+         * @param {any} argc Any object.
+         * @returns {argc is Headers}
+         */
+        function (
+            argc
+        ) {
+            return _isInstanceOf(argc, globalThis.Headers);
+        }
+    );
+
     var _isJsonContent = skrinkSerializer(
         /**
          * 
@@ -5191,7 +5297,7 @@
         function (
             argc
         ) {
-            return (function (argc) { return argc ? startsWith(argc.toLowerCase(), httpContent.JSON) : false; }(_isInstanceOf(argc, globalThis.Headers) ? argc.get(httpHeader.CONTENT_TYPE) : argc));
+            return (function (argc) { return argc ? startsWith(argc.toLowerCase(), httpContent.JSON) : false; }(_isHeaders(argc) ? argc.get(httpHeader.CONTENT_TYPE) : argc));
         }
     );
 
@@ -5203,7 +5309,7 @@
         function (
             argc
         ) {
-            return (function (argc) { return argc ? startsWith(argc.toLowerCase(), httpContent.TEXT) : false; }(_isInstanceOf(argc, globalThis.Headers) ? argc.get(httpHeader.CONTENT_TYPE) : argc));
+            return (function (argc) { return argc ? startsWith(argc.toLowerCase(), httpContent.TEXT) : false; }(_isHeaders(argc) ? argc.get(httpHeader.CONTENT_TYPE) : argc));
         }
     );
 
@@ -5269,6 +5375,74 @@
         }
     );
 
+    /**
+     * 
+     * @typedef {Object} BuildinModules
+     * 
+     * @property {typeof import("fs")} `fs`
+     * @property {typeof import("url")} `url`
+     * @property {typeof import("path")} `path`
+     * @property {typeof import("zlib")} `zlib`
+     * @property {typeof import("http")} `http`
+     * @property {typeof import("https")} `https`
+     * @property {typeof import("crypto")} `crypto`
+     * @property {typeof import("module")} `module`
+     * @property {typeof import("stream")} `stream`
+     * @property {typeof import("process")} `process`
+     * @property {typeof import("readline")} `readline`
+     * @property {typeof import("typescript")} `typescript`
+     * @property {typeof import("acorn-walk")} `acorn-walk`
+     * @property {typeof import("acorn")} `acorn`
+     * 
+     */
+
+    /**
+     * Use commonjs module dynamic import to avoid loading built-in modules in the browser.
+     * This function can only be used in the nodejs.
+     * Always returns null in browsers.
+     * 
+     * @param {Yarla.Object<T, keyof BuildinModules>} id The id of the module
+     * @returns {BuildinModules[T]}
+     * @template T
+     */
+    var nodeRequire = function (
+        id
+    ) {
+        return typeof require !== "undefined" ? require( /* webpackIgnore: true */ id) : null;
+    };
+
+    var stream = nodeRequire("stream");
+
+    var _isReadable = skrinkSerializer(
+        /**
+         * 
+         * Determines if the input parameter is a stream.Readable.
+         * 
+         * @param {any} argc Any object.
+         * @returns {argc is Headers}
+         */
+        function (
+            argc
+        ) {
+            return stream ? _isInstanceOf(argc, stream.Readable) : false;
+        }
+    );
+
+    var _isWritable = skrinkSerializer(
+        /**
+         * 
+         * Determines if the input parameter is a stream.Writable.
+         * 
+         * @param {any} argc Any object.
+         * @returns {argc is Headers}
+         */
+        function (
+            argc
+        ) {
+            return stream ? _isInstanceOf(argc, stream.Writable) : false;
+        }
+    );
+
     var _isBlob = skrinkSerializer(
         /**
          * 
@@ -5281,6 +5455,46 @@
             argc
         ) {
             return _isInstanceOf(argc, globalThis.Blob);
+        }
+    );
+
+    var _read$1 = skrinkSerializer(
+        /**
+         * 
+         * @param {import("stream").Readable | ReadableStream} readable 
+         * @param {number} [maximum] 
+         */
+        function (
+            readable,
+            maximum
+        ) {
+            var l = Math.pow(2, 30) - 1;
+            var m = Math.min(maximum || l, l);
+            return new Promise$1(function (resolve, reject) {
+                function large() {
+                    return b.reduce(function (v, i) { return v + i.length; }, 0) > m;
+                }
+                /** @type {Array<Uint8Array>} */
+                var b = [];
+                var s = _isReadable(readable) ? ReadableStream.from(readable) : readable;
+                var r = s.getReader();
+                r.closed.then(function () {
+                    if (large()) {
+                        throw new HttpError(413);
+                    }
+                    return Buffer.concat(b);
+                }).then(resolve, reject);
+                r.read().then(function process(v) {
+                    if (v.done) {
+                        return;
+                    }
+                    b.push(v.value);
+                    if (large()) {
+                        return r.cancel();
+                    }
+                    return r.read().then(process);
+                }).catch(reject);
+            });
         }
     );
 
@@ -11098,7 +11312,7 @@
                         _delete$1(d, k);
                         _delete$1(t, k);
                     }, s * 60 * 1000));
-                    if (_isObject(r)) {
+                    if (r.unref) {
                         r.unref();
                     }
                 } else {
@@ -11137,41 +11351,6 @@
             return SessionStorage.init(_defaults$1({ expire: 20 }, opts));
         }
     );
-
-    /**
-     * 
-     * @typedef {Object} BuildinModules
-     * 
-     * @property {typeof import("fs")} `fs`
-     * @property {typeof import("url")} `url`
-     * @property {typeof import("path")} `path`
-     * @property {typeof import("zlib")} `zlib`
-     * @property {typeof import("http")} `http`
-     * @property {typeof import("crypto")} `crypto`
-     * @property {typeof import("module")} `module`
-     * @property {typeof import("stream")} `stream`
-     * @property {typeof import("process")} `process`
-     * @property {typeof import("readline")} `readline`
-     * @property {typeof import("typescript")} `typescript`
-     * @property {typeof import("acorn-walk")} `acorn-walk`
-     * @property {typeof import("acorn")} `acorn`
-     * 
-     */
-
-    /**
-     * Use commonjs module dynamic import to avoid loading built-in modules in the browser.
-     * This function can only be used in the nodejs.
-     * Always returns null in browsers.
-     * 
-     * @param {Yarla.Object<T, keyof BuildinModules>} id The id of the module
-     * @returns {BuildinModules[T]}
-     * @template T
-     */
-    var nodeRequire = function (
-        id
-    ) {
-        return typeof require !== "undefined" ? require( /* webpackIgnore: true */ id) : null;
-    };
 
     var crypto = nodeRequire("crypto");
 
@@ -11309,45 +11488,33 @@
                         "PATCH",
                     ].join(", ");
                     var R = ARGCM === "GET" || ARGCM === "HEAD";
+                    if (!ARGCH) { return Promise$1.resolve(R); }
+                    if (!ARGCO) { return Promise$1.resolve(R); }
                     if (ARGCM === "OPTIONS" || ARGCX === "XMLHttpRequest") {
-                        if (ARGCS === "Strict") {
-                            if (ARGCH && ARGCO && ARGCH.host === ARGCO.host) {
-                                return Promise$1.resolve(true); // Not Response Headers
-                            }
-                            return Promise$1.resolve(false);
+                        var ALLOW = false;
+                        if (ARGCS === "None") {
+                            ALLOW = true;
                         }
                         if (ARGCS === "Lax") {
-                            if (ARGCH && ARGCO && ARGCH.hostname === ARGCO.hostname) {
-                                context.setResponseHeader(httpHeader.ACCESS_CONTROL_MAX_AGE, "600");
-                                context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-                                context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_HEADERS, ACCESS_CONTROL_ALLOW_HEADERS);
-                                context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_METHODS, ACCESS_CONTROL_ALLOW_METHODS);
-                                context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, context.origin || "*");
-                                return Promise$1.resolve(true);
-                            }
-                            return Promise$1.resolve(false);
+                            ALLOW = ARGCH.hostname === ARGCO.hostname;
                         }
-                        if (ARGCS === "None" || ARGCS.includes("*")) {
+                        if (_isArray(ARGCS)) {
+                            ALLOW = ARGCS.includes("*") || (
+                                function (host) {
+                                    return ARGCS.some(function (i) {
+                                        return _glob(String(i)).test(host);
+                                    });
+                                }(ARGCO.host)
+                            );
+                        }
+                        if (ALLOW) {
                             context.setResponseHeader(httpHeader.ACCESS_CONTROL_MAX_AGE, "600");
                             context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
                             context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_HEADERS, ACCESS_CONTROL_ALLOW_HEADERS);
                             context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_METHODS, ACCESS_CONTROL_ALLOW_METHODS);
-                            context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, context.origin || "*");
-                            return Promise$1.resolve(true);
+                            context.setResponseHeader(httpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, ARGCO.protocol + "//" + ARGCO.host || "*");
                         }
-                        if (ARGCO) {
-                            for (var
-                                i = 0,
-                                l = ARGCS.length;
-                                i < l;
-                                i++
-                            ) {
-                                if (_glob(ARGCS[i]).test(ARGCO.host)) {
-                                    return Promise$1.resolve(true);
-                                }
-                            }
-                        }
-                        return Promise$1.resolve(false);
+                        return Promise$1.resolve(ALLOW || ARGCH.host === ARGCO.host);
                     }
                     return Promise$1.resolve(R);
                 }
@@ -11397,8 +11564,6 @@
     var path = nodeRequire("path");
 
     var zlib = nodeRequire("zlib");
-
-    var stream = nodeRequire("stream");
 
     var process = nodeRequire("process");
 
@@ -11463,51 +11628,20 @@
 
     var readline = nodeRequire("readline");
 
-    var read = skrinkSerializer(
-        /**
-         * 
-         * @param {import("stream").Readable} readable 
-         * @param {number} [maximum] 
-         */
-        function (
-            readable,
-            maximum
-        ) {
-            var l = Math.pow(2, 30) - 1;
-            var m = Math.min(maximum || l, l);
-            return new Promise$1(function (resolve, reject) {
-                /** @type {Buffer[]} */
-                var r = [], t = false;
-                readable.on("close", function () {
-                    if (t || readable.readableEnded) {
-                        return;
-                    }
-                    reject(new Error(message.STREAM_CLOSED_BEFORE_ENDING));
-                });
-                readable.on("error", function (reason) {
-                    t = true, reject(reason);
-                });
-                readable.on("end", function () {
-                    resolve(Buffer.concat(r));
-                });
-                readable.on("readable", function () {
-                    /** @type {Buffer} */
-                    var i;
-                    while (i = readable.read()) {
-                        var l = r.reduce(function (v, i) { return v + i.length; }, i.length);
-                        if (l > m) {
-                            readable.destroy(new HttpError(413));
-                            break;
-                        }
-                        r.push(i);
-                    }
-                });
-            });
-        }
-    );
-
     var Context = (function () {
         return defineProperties(generateClass(Reflect.BASE, {
+            IE: generateGetterDescriptor(
+                /**
+                 * 
+                 * @this {Yarla.koa.Context}
+                 * @returns {boolean} 
+                 */
+                function () {
+                    return Reflect.once(this, Reflect.expr.IE, function () {
+                        return /\b(?:Trident|MSIE|Edge)\b/i.test(this.UA);
+                    });
+                }
+            ),
             IP: generateGetterDescriptor(
                 /**
                  * 
@@ -11832,18 +11966,14 @@
                     return Reflect.getInternal(this).headers.delete(name);
                 }
             ),
-            pipe: generateMethodDescriptor(
+            stream: generateMethodDescriptor(
                 /**
                  * 
-                 * @this {Yarla.koa.Context}
-                 * @param {Yarla.Object<T, NodeJS.WritableStream>} writable 
-                 * @returns {T}
-                 * @template T
+                 * @this {Yarla.koa.Context} 
+                 * @returns {NodeJS.ReadableStream}
                  */
-                function (
-                    writable
-                ) {
-                    return Reflect.getInternal(this).request.pipe(writable);
+                function () {
+                    return Reflect.getInternal(this).request;
                 }
             ),
             readline: generateMethodDescriptor(
@@ -11882,7 +12012,7 @@
                                 if (maximum < length) {
                                     return Promise$1.reject(new HttpError(413));
                                 }
-                                return read(context.request, maximum);
+                                return _read$1(context.request, maximum);
                             }(Reflect.getInternal(this))
                         );
                     }).then(function (res) {
@@ -12930,7 +13060,7 @@
                     return skrinkSerializer(
                         function (req, res) {
                             return (function (ctx) {
-                                var AGENT = ctx.UA;
+                                var OLDER = ctx.IE;
                                 var ARGCR = ctx.range;
                                 var ARGCM = ctx.method;
                                 var ARGCP = ctx.pathname;
@@ -13069,7 +13199,6 @@
                                     var SIZE;
                                     var DATE;
                                     var NEED;
-                                    var MSIE = /\b(?:Trident|MSIE|Edge)\b/i.test(AGENT);
                                     var NOCACHE = "no-cache";
                                     var CACHING = "max-age=0";
                                     serialize(ctx).forEach(
@@ -13144,7 +13273,7 @@
                                     }
                                     if (_isInstanceOf(result, _DataResult)) {
                                         NAME = result.filename;
-                                        TYPE = result.mimetype || mimetype(MSIE, NAME);
+                                        TYPE = result.mimetype || mimetype(OLDER, NAME);
                                         INFO = result.modified;
                                         DATA = result.data;
                                         if (INFO) {
@@ -13180,7 +13309,7 @@
                                     if (_isInstanceOf(result, _FileResult)) {
                                         PATH = result.path;
                                         NAME = result.filename;
-                                        TYPE = result.mimetype || mimetype(MSIE, NAME || PATH);
+                                        TYPE = result.mimetype || mimetype(OLDER, NAME || PATH);
                                         INFO = _statInfo(PATH);
                                         DATE = INFO.mtime;
                                         SIZE = INFO.size;
@@ -13249,7 +13378,7 @@
                                     if (NAME) {
                                         res.setHeader(httpHeader.CONTENT_DISPOSITION, [
                                             "attachment",
-                                            "filename=" + (MSIE ? encodeURIComponent(NAME) : Buffer.from(NAME, definition.UTF8).toString(definition.LATIN1)),
+                                            "filename=" + (OLDER ? encodeURIComponent(NAME) : Buffer.from(NAME, definition.UTF8).toString(definition.LATIN1)),
                                             "filename*=UTF-8''" + encodeURIComponent(NAME),
                                         ].join("; "));
                                     }
@@ -13461,7 +13590,7 @@
                     opts && opts.compressTypes || [],
                     opts && opts.compressLeast || 1024,
                     opts && opts.compressLevel || 5,
-                    opts && opts.customHeaders || new Headers(),
+                    opts && opts.customHeaders || new KVPair(),
                     opts && opts.debugger || HTTP_DEBUGGER,
                     opts && opts.mimetype || HTTP_MIMETYPE,
                     opts && opts.favicon || "favicon.ico",
@@ -13644,6 +13773,233 @@
         }
     );
 
+    var Blob = (function (Blob) {
+        return Blob = Blob || generateClass(function () {
+            throw new Error(message.NOT_SUPPORTED);
+        }, {
+            type: generateGetterDescriptor(
+                function () {
+                    throw new Error(message.NOT_SUPPORTED);
+                }
+            ),
+            size: generateGetterDescriptor(
+                function () {
+                    throw new Error(message.NOT_SUPPORTED);
+                }
+            ),
+            slice: generateMethodDescriptor(
+                function () {
+                    throw new Error(message.NOT_SUPPORTED);
+                }
+            ),
+            stream: generateMethodDescriptor(
+                function () {
+                    throw new Error(message.NOT_SUPPORTED);
+                }
+            ),
+            arrayBuffer: generateMethodDescriptor(
+                function () {
+                    throw new Error(message.NOT_SUPPORTED);
+                }
+            ),
+            text: generateMethodDescriptor(
+                function () {
+                    throw new Error(message.NOT_SUPPORTED);
+                }
+            ),
+        }, NOOP, "Blob");
+    }(globalThis.Blob));
+
+    var File = ( /** @param {typeof File} File */ function (File) {
+        return File = File || generateClass(
+            /**
+             * 
+             * @this {import(".").default}
+             * @param {BlobPart[]} fileBits
+             * @param {string} fileName 
+             * @param {object} [options] 
+             * @param {number} [options.lastModified] 
+             * @param {number} [options.start] 
+             * @param {number} [options.size] 
+             * @param {string} [options.type] 
+             */
+            function (
+                fileBits,
+                fileName,
+                options
+            ) {
+                var size = options ? options.size : void 0;
+                var lastModified = options ? options.lastModified : void 0;
+                var start = options ? options.start || 0 : 0;
+                if (_isUndefined(size) ||
+                    _isUndefined(lastModified)) {
+                    var stat = fs.statSync(fileName);
+                    if (_isUndefined(size)) {
+                        size = stat.size - start;
+                    }
+                    if (_isUndefined(lastModified)) {
+                        lastModified = stat.mtime.getTime();
+                    }
+                }
+                return (
+                    /**
+                     * @this {any}
+                     */
+                    function () {
+                        return (
+                            Reflect.defineInternal(this, size, "size"),
+                            Reflect.defineInternal(this, start, "start"),
+                            Reflect.defineInternal(this, lastModified, "lastModified"),
+                            Reflect.defineInternal(this, path.basename(fileName), "name"),
+                            Reflect.defineInternal(this, fileName, "path"));
+                    }
+                ).call(Reflect.callSuper(this, fileBits, options));
+            },
+            {
+                name: generateGetterDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {string}
+                     */
+                    function () {
+                        return Reflect.getInternal(this).name;
+                    }
+                ),
+                path: generateGetterDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {string}
+                     */
+                    function () {
+                        return Reflect.getInternal(this).path;
+                    }
+                ),
+                size: generateGetterDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {number}
+                     */
+                    function () {
+                        return Reflect.getInternal(this).size;
+                    }
+                ),
+                start: generateGetterDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {number}
+                     */
+                    function () {
+                        return Reflect.getInternal(this).start;
+                    }
+                ),
+                lastModified: generateGetterDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {number}
+                     */
+                    function () {
+                        return Reflect.getInternal(this).lastModified;
+                    }
+                ),
+                slice: generateMethodDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @param {number} [start] 
+                     * @param {number} [end] 
+                     */
+                    function (
+                        start,
+                        end
+                    ) {
+                        if (_isUndefined(start)) {
+                            start = 0;
+                        }
+                        var size;
+                        if (_isUndefined(end)) {
+                            size = this.size - start;
+                        } else {
+                            size = end - start;
+                        }
+                        return new File([], this.path, {
+                            type: this.type,
+                            lastModified: this.lastModified,
+                            // @ts-ignore
+                            start: start,
+                            // @ts-ignore
+                            size: size,
+                        });
+                    }
+                ),
+                stream: generateMethodDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     */
+                    function () {
+                        return ReadableStream.from(
+                            fs.createReadStream(this.path, {
+                                end: this.start + this.size - 1,
+                                start: this.start,
+                            })
+                        );
+                    }
+                ),
+                arrayBuffer: generateMethodDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {Promise<ArrayBuffer>}
+                     */
+                    function () {
+                        return _read$1(
+                            stream.Readable.from(this.stream())
+                        ).then(function (i) {
+                            return new Uint8Array(i).buffer;
+                        });
+                    }
+                ),
+                text: generateMethodDescriptor(
+                    /**
+                     * 
+                     * @this {import(".").default}
+                     * @returns {Promise<string>}
+                     */
+                    function () {
+                        return _read$1(
+                            stream.Readable.from(this.stream())
+                        ).then(function (i) {
+                            return i.toString(definition.UTF8);
+                        });
+                    }
+                ),
+            },
+            Blob,
+            "File"
+        );
+    }());
+
+    var _read = skrinkSerializer(
+        /**
+         * 
+         * @param {string} filename 
+         * @param {string} [mimetype] 
+         */
+        function (
+            filename,
+            mimetype
+        ) {
+            return new File([], filename, {
+                type: mimetype,
+            });
+        }
+    );
+
     var koa = {
         PureResult: _PureResult,
         DataResult: _DataResult,
@@ -13673,6 +14029,7 @@
         exists: _exists,
         hash: _hash,
         find: _find,
+        read: _read,
     };
 
     var _defaults = {};
@@ -13686,6 +14043,8 @@
             return _concatUrl.apply(null, [env.BASE_URI].concat(_flat(arguments)));
         }
     );
+
+    var https = nodeRequire("https");
 
     var XMLHttpRequest = (function (XMLHttpRequest) {
         return XMLHttpRequest = XMLHttpRequest || defineProperties(generateClass(
@@ -13703,15 +14062,18 @@
                         return (
                             Reflect.defineInternal(this, 0, "status"),
                             Reflect.defineInternal(this, 0, "timeout"),
-                            Reflect.defineInternal(this, 0, "readyState"),
-                            Reflect.defineInternal(this, "", "statusText"),
-                            Reflect.defineInternal(this, "", "responseType"),
-                            Reflect.defineInternal(this, null, "controller"),
-                            Reflect.defineInternal(this, null, "response"),
+                            Reflect.defineInternal(this, null, "req"),
+                            Reflect.defineInternal(this, null, "res"),
+                            Reflect.defineInternal(this, null, "method"),
                             Reflect.defineInternal(this, null, "username"),
                             Reflect.defineInternal(this, null, "password"),
+                            Reflect.defineInternal(this, null, "response"),
+                            Reflect.defineInternal(this, "", "statusText"),
+                            Reflect.defineInternal(this, "", "responseURL"),
+                            Reflect.defineInternal(this, "", "responseType"),
                             Reflect.defineInternal(this, new KVPair(true), "reqHeaders"),
-                            Reflect.defineInternal(this, new KVPair(true), "resHeaders"));
+                            Reflect.defineInternal(this, new KVPair(true), "resHeaders"),
+                            Reflect.defineInternal(this, XMLHttpRequest.UNSENT, "readyState"));
                     }
                 ).call(Reflect.callSuper(this));
             },
@@ -13811,7 +14173,7 @@
                      * @returns {string}
                      */
                     function () {
-                        return Reflect.getInternal(this).url || "";
+                        return Reflect.getInternal(this).responseURL;
                     }
                 ),
                 setRequestHeader: generateMethodDescriptor(
@@ -13858,13 +14220,21 @@
                     /**
                      * 
                      * @this {XMLHttpRequest} 
-                     * @param {any} [reason]
                      */
-                    function (reason) {
-                        var xhr = Reflect.getInternal(this);
-                        if (xhr.controller) {
-                            xhr.controller.abort(reason);
-                            xhr.controller = null;
+                    function () {
+                        var own = this;
+                        var xhr = Reflect.getInternal(own);
+                        if (xhr.req) {
+                            xhr.req.destroy();
+                            xhr.req = null;
+                        }
+                        if (xhr.res) {
+                            xhr.res.destroy();
+                            xhr.res = null;
+                        }
+                        if (xhr.readyState === XMLHttpRequest.LOADING) {
+                            xhr.readyState = XMLHttpRequest.DONE;
+                            own.dispatchEvent(new Event("abort"));
                         }
                     }
                 ),
@@ -13873,14 +14243,14 @@
                      * 
                      * @this {XMLHttpRequest}
                      * @param {string} method 
-                     * @param {string | URL} url 
+                     * @param {string | URL} href 
                      * @param {boolean} [async] 
                      * @param {string | null} [username] 
                      * @param {string | null} [password] 
                      */
                     function (
                         method,
-                        url,
+                        href,
                         async,
                         username,
                         password
@@ -13892,7 +14262,7 @@
                             throw new Error(message.ONLY_BE_CALLED_WHEN_STATE_IS_UNSENT);
                         }
                         var xhr = Reflect.getInternal(this);
-                        xhr.url = String(url);
+                        xhr.responseURL = new url.URL(href.toString()).href;
                         xhr.readyState = XMLHttpRequest.OPENED;
                         xhr.username = username;
                         xhr.password = password;
@@ -13912,87 +14282,151 @@
                         if (own.readyState !== XMLHttpRequest.OPENED) {
                             throw new Error(message.ONLY_BE_CALLED_WHEN_STATE_IS_OPEN);
                         }
+                        function finishTimeout() {
+                            xhr.response = new Error(message.TIMEOUT);
+                            xhr.readyState = XMLHttpRequest.DONE;
+                            own.dispatchEvent(new Event("timeout"));
+                        }
+                        /**
+                         * @param {Error} error 
+                         */
+                        function finishFailure(error) {
+                            xhr.response = error;
+                            xhr.readyState = XMLHttpRequest.DONE;
+                            own.dispatchEvent(new Event("error"));
+                        }
+                        /**
+                         * @param {any} value 
+                         */
+                        function finishSuccess(value) {
+                            xhr.response = value;
+                            xhr.readyState = XMLHttpRequest.DONE;
+                            own.dispatchEvent(new Event("load"));
+                        }
+                        /**
+                         * 
+                         * @param {import("http").IncomingMessage} res 
+                         * @param {string} method 
+                         * @param {URL} responseURL 
+                         * @param {number} counter 
+                         */
+                        function solveRedirect(
+                            res,
+                            method,
+                            responseURL,
+                            counter
+                        ) {
+                            var statusCode = res.statusCode;
+                            if (statusCode === 301 ||
+                                statusCode === 302 ||
+                                statusCode === 303 ||
+                                statusCode === 307 ||
+                                statusCode === 308) {
+                                solveDispatch(statusCode === 307 || statusCode === 308 ? method : "GET", new url.URL(res.headers.location || "", responseURL), counter + 1);
+                            } else {
+                                solveResponse(res, responseURL);
+                            }
+                        }
+                        /**
+                         * 
+                         * @param {import("http").IncomingMessage} res 
+                         * @param {URL} responseURL 
+                         */
+                        function solveResponse(
+                            res,
+                            responseURL
+                        ) {
+                            xhr.res = res;
+                            xhr.status = res.statusCode || 200;
+                            xhr.statusText = res.statusMessage || "OK";
+                            xhr.resHeaders = new KVPair(res.headers, true);
+                            xhr.responseURL = responseURL.href;
+                            /** @type {Yarla.xhr.ResponseType} */
+                            var type = xhr.responseType;
+                            if (type === "blob") {
+                                return void _read$1(res).then(toBlob).then(finishSuccess, finishFailure);
+                            }
+                            if (type === "arraybuffer") {
+                                return void _read$1(res).then(toBlob).then(toArraybuffer).then(finishSuccess, finishFailure);
+                            }
+                            if (type === "json" || _isJsonContent(res.headers["content-type"])) {
+                                return void _read$1(res).then(toText).then(toJson).then(finishSuccess, finishFailure);
+                            }
+                            if (type === "text" || _isTextContent(res.headers["content-type"])) {
+                                return void _read$1(res).then(toText).then(finishSuccess, finishFailure);
+                            }
+                            return finishSuccess(ReadableStream.from(res));
+                        }
+                        /**
+                         * 
+                         * @param {string} method 
+                         * @param {URL} responseURL 
+                         * @param {number} counter 
+                         */
+                        function solveDispatch(
+                            method,
+                            responseURL,
+                            counter
+                        ) {
+                            if (counter > 10) {
+                                finishFailure(new Error(message.REDIRECT_EXCEEDS_MAXIMUM + ": " + 10));
+                                return;
+                            }
+                            var req = null;
+                            var ini = {
+                                port: responseURL.port,
+                                host: responseURL.hostname,
+                                path: responseURL.pathname + responseURL.search,
+                                rejectUnauthorized: false,
+                                headers: headers.toJSON(),
+                                timeout: timeout,
+                                method: method,
+                            };
+                            switch (responseURL.protocol) {
+                                case definition.HTTP:
+                                    req = http.request(ini, function (res) {
+                                        solveRedirect(res, method, responseURL, counter);
+                                    });
+                                    break;
+                                case definition.HTTPS:
+                                    req = https.request(ini, function (res) {
+                                        solveRedirect(res, method, responseURL, counter);
+                                    });
+                                    break;
+                                default:
+                                    finishFailure(new Error(message.INVALID_PROTOCOL + ": " + responseURL.href));
+                                    break;
+                            }
+                            if (req) {
+                                req.once("timeout", finishTimeout);
+                                req.once("error", finishFailure);
+                                end(req, body, boundary);
+                            }
+                            xhr.req = req;
+                        }
                         var xhr = Reflect.getInternal(own);
-                        var controller = new AbortController();
-                        /** @type {"" | "arraybuffer" | "blob" | "json" | "text"} */
-                        var responseType = xhr.responseType;
-                        /** @type {Yarla.KVPair} */
-                        var reqHeaders = xhr.reqHeaders;
-                        /** @type {string | null} */
-                        var username = xhr.username;
-                        /** @type {string | null} */
-                        var password = xhr.password;
-                        /** @type {number} */
-                        var timeout = xhr.timeout;
                         /** @type {string} */
-                        var method = xhr.method;
-                        if (_isNullOrUndefined(username)) {
-                            username = "";
-                        }
-                        if (_isNullOrUndefined(password)) {
-                            password = "";
-                        }
+                        var method = xhr.method || "GET";
+                        /** @type {number} */
+                        var timeout = xhr.timeout || 1e4;
+                        /** @type {string} */
+                        var username = xhr.username || "";
+                        /** @type {string} */
+                        var password = xhr.password || "";
+                        /** @type {Yarla.KVPair} */
+                        var headers = new KVPair(xhr.reqHeaders, true);
+                        /** @type {string} */
+                        var boundary = "----YarlaFormBoundary" + _salt(16);
                         if (username) {
-                            reqHeaders.set(httpHeader.AUTHORIZATION, "Basic " + _btoa(username + ":" + password));
+                            headers.set(httpHeader.AUTHORIZATION, "Basic " + _btoa(username + ":" + password));
                         }
-                        xhr.controller = controller;
-                        xhr.readyState = XMLHttpRequest.LOADING;
-                        var process;
-                        if (timeout > 0) {
-                            process = setTimeout$1(function () {
-                                controller.abort(new HttpError(408));
-                            }, timeout);
+                        if (_isFormData(body)) {
+                            headers.set(httpHeader.CONTENT_TYPE, httpContent.MULT + "; boundary=" + boundary);
                         }
-                        globalThis.fetch(xhr.url, {
-                            signal: controller.signal,
-                            headers: reqHeaders.toJSON(),
-                            method: method,
-                            body: body,
-                        }).then(
-                            function (response) {
-                                if (process) {
-                                    clearTimeout(process);
-                                }
-                                xhr.url = response.url;
-                                xhr.status = response.status;
-                                xhr.statusText = response.statusText;
-                                xhr.resHeaders = new KVPair(response.headers);
-                                xhr.readyState = XMLHttpRequest.HEADERS_RECEIVED;
-                                if (response.ok) {
-                                    if (responseType === "arraybuffer") {
-                                        return response.arrayBuffer();
-                                    }
-                                    if (responseType === "blob") {
-                                        return response.blob();
-                                    }
-                                    if (responseType === "json") {
-                                        return response.json();
-                                    }
-                                    if (responseType === "text") {
-                                        return response.text();
-                                    }
-                                    return response.body;
-                                }
-                                throw new HttpError(response.status, response.statusText);
-                            }
-                        ).then(
-                            function (value) {
-                                xhr.response = value;
-                                xhr.readyState = XMLHttpRequest.DONE;
-                                own.dispatchEvent(new Event("load"));
-                            },
-                            function (error) {
-                                xhr.response = error;
-                                xhr.readyState = XMLHttpRequest.DONE;
-                                if (_isInstanceOf(error, HttpError)) {
-                                    if (error.status === 408) {
-                                        own.dispatchEvent(new Event("timeout"));
-                                        return;
-                                    }
-                                }
-                                own.dispatchEvent(new Event("error"));
-                            }
-                        );
+                        if (_isURLSearchParams(body)) {
+                            headers.set(httpHeader.CONTENT_TYPE, httpContent.FORM);
+                        }
+                        solveDispatch(method, new url.URL(xhr.responseURL), 0);
                     }
                 ),
             },
@@ -14005,7 +14439,170 @@
             LOADING: generateNormalDescriptor(3, true, true),
             DONE: generateNormalDescriptor(4, true, true),
         });
+        /**
+         * 
+         * @param {Buffer} argc 
+         */
+        function toBlob(
+            argc
+        ) {
+            return new globalThis.Blob([argc]);
+        }
+        /**
+         * 
+         * @param {Buffer} argc 
+         */
+        function toText(
+            argc
+        ) {
+            return argc.toString(definition.UTF8);
+        }
+        /**
+         * 
+         * @param {string} argc 
+         */
+        function toJson(
+            argc
+        ) {
+            return argc ? JSON.parse(argc) : null;
+        }
+        /**
+         * 
+         * @param {Blob} argc 
+         */
+        function toArraybuffer(
+            argc
+        ) {
+            return argc.arrayBuffer();
+        }
+        /**
+         * 
+         * @param {import("http").ClientRequest} argc 
+         * @param {any} body 
+         * @param {string} boundary 
+         */
+        function end(
+            argc,
+            body,
+            boundary
+        ) {
+            if (_isNullOrUndefined(body)) {
+                argc.end();
+            } else if (_isURLSearchParams(body)) {
+                argc.end(body.toString());
+            } else if (_isFormData(body)) {
+                serial(argc, serialize(body, boundary));
+            } else if (_isBasic(body)) {
+                argc.end(String(body));
+            } else if (_isBlob(body)) {
+                body.stream().pipe(argc);
+            } else {
+                argc.end(body);
+            }
+        }
+        /**
+         * 
+         * @param {FormData} argc 
+         * @param {string} boundary 
+         */
+        function serialize(
+            argc,
+            boundary
+        ) {
+            return _entries(argc).map(function (value) {
+                var name = value[0];
+                var data = value[1];
+                var head = "Content-Disposition: form-data; name=\"" + encodeURIComponent(name) + "\"";
+                if (_isBlob(data)) {
+                    if (data.name) {
+                        head += "; filename=\"" + encodeURIComponent(data.name) + "\"";
+                    }
+                    if (data.type) {
+                        head += "\r\nContent-Type: " + data.type;
+                    }
+                }
+                return [
+                    "--" + boundary + "\r\n",
+                    head + "\r\n\r\n",
+                    data,
+                    "\r\n",
+                ];
+            }).flat().concat(["--" + boundary + "--"]);
+        }
+        /**
+         * 
+         * @param {import("http").ClientRequest} argc 
+         * @param {FormDataEntryValue[]} body 
+         */
+        function serial(
+            argc,
+            body
+        ) {
+            var item = body.shift();
+            if (item) {
+                if (_isBlob(item)) {
+                    stream.Readable.from(
+                        item.stream()
+                    ).on("end", function () {
+                        process.nextTick(function () {
+                            serial(argc, body);
+                        });
+                    }).on("error", function () {
+                        argc.end();
+                    }).pipe(argc, {
+                        end: false,
+                    });
+                } else {
+                    argc.write(item, function (error) {
+                        if (error) {
+                            argc.end();
+                        } else {
+                            process.nextTick(function () {
+                                serial(argc, body);
+                            });
+                        }
+                    });
+                }
+            } else {
+                argc.end();
+            }
+        }
     }(globalThis.XMLHttpRequest));
+
+    var ResponseError = generateClass(
+        /**
+         * 
+         * @this {any}
+         * @param {object} init 
+         * @param {string} init.url 
+         * @param {XMLHttpRequest} init.xhr 
+         * @param {Yarla.AnyObject<string | ReadonlyArray<string>>} init.headers 
+         * @param {Yarla.xhr.ResponseType} init.responseType 
+         * @param {any} init.response 
+         * @param {any} init.body 
+         * @param {number} status 
+         * @param {string} [message] 
+         */
+        function (
+            init,
+            status,
+            message
+        ) {
+            return defineProperties(Reflect.callSuper(this, status, message), {
+                url: generateNormalDescriptor(init.url, true, true),
+                xhr: generateNormalDescriptor(init.xhr, true, true),
+                headers: generateNormalDescriptor(init.headers, true, true),
+                responseType: generateNormalDescriptor(init.responseType, true, true),
+                response: generateNormalDescriptor(init.response, true, true),
+                body: generateNormalDescriptor(init.body, true, true),
+            });
+        },
+        {
+            name: generateNormalDescriptor("ResponseError", true, true),
+        },
+        HttpError,
+        "ResponseError"
+    );
 
     var Response = defineProperties(generateClass(Reflect.BASE, {
         status: generateGetterDescriptor(
@@ -14159,7 +14756,7 @@
                         ON_PROGRESS,
                         ON_FINISHED
                     ) {
-                        var SEP, RES, TYPE, N;
+                        var SEP, RES, TYPE;
                         return new Promise$1(function (resolve, reject) {
                             if (xhr) {
                                 xhr.abort();
@@ -14185,7 +14782,7 @@
                             xhr.addEventListener("load", function () {
                                 var status = xhr.status || 200;
                                 if (status < 200 || status >= 300) {
-                                    reject(new HttpError(status, xhr.responseText));
+                                    reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                                 } else {
                                     resolve(Response.init(xhr, url, RESPONSE_TYPE));
                                 }
@@ -14194,19 +14791,19 @@
                                 }
                             });
                             xhr.addEventListener("abort", function () {
-                                reject(buildError(xhr.response, xhr.status, xhr.statusText));
+                                reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                                 if (_isFunction(ON_FINISHED)) {
                                     ON_FINISHED.call(xhr);
                                 }
                             });
                             xhr.addEventListener("error", function () {
-                                reject(buildError(xhr.response, xhr.status, xhr.statusText));
+                                reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                                 if (_isFunction(ON_FINISHED)) {
                                     ON_FINISHED.call(xhr);
                                 }
                             });
                             xhr.addEventListener("timeout", function () {
-                                reject(buildError(xhr.response, xhr.status, xhr.statusText));
+                                reject(serializeError(url, xhr, HEADERS || {}, RESPONSE_TYPE || "", data));
                                 if (_isFunction(ON_FINISHED)) {
                                     ON_FINISHED.call(xhr);
                                 }
@@ -14227,17 +14824,14 @@
                                 xhr.setRequestHeader(httpHeader.CONTENT_TYPE, TYPE);
                             }
                             if (HEADERS) {
-                                if (_isInstanceOf(HEADERS, globalThis.Headers)) {
-                                    HEADERS.forEach(function (value, name) {
-                                        xhr.setRequestHeader(name, String(value));
-                                    });
-                                } else {
-                                    for (var name in HEADERS) {
-                                        if (N = HEADERS[name]) {
-                                            xhr.setRequestHeader(name, String(N));
-                                        }
-                                    }
+                                if (!_isInstanceOf(HEADERS, KVPair)) {
+                                    HEADERS = new KVPair(HEADERS, true);
                                 }
+                                HEADERS.forEach(function (value, name) {
+                                    if (isValidHeaders(value)) {
+                                        xhr.setRequestHeader(name, String(value));
+                                    }
+                                });
                             }
                             if (_isNumber(TIMEOUT)) {
                                 xhr.timeout = TIMEOUT;
@@ -14271,29 +14865,52 @@
                  * 
                  * @param {any} argc 
                  */
-                function isSerializable(
+                function isValidHeaders(
                     argc
                 ) {
-                    if (_isBlob(argc) ||
-                        _isFormData(argc) ||
-                        _isArrayBuffer(argc) ||
-                        _isArrayBufferView(argc) ||
-                        _isURLSearchParams(argc) ||
-                        _isBasic(argc)) {
-                        return false;
-                    }
-                    return true;
+                    return _isNullOrEmptyString(argc)
+                        || _isNullOrEmptyArray(argc) ? false : true;
                 }
                 /**
                  * 
-                 * @param {any} error 
+                 * @param {any} argc 
                  */
-                function buildError(
-                    error,
-                    status,
-                    statusText
+                function isSerializable(
+                    argc
                 ) {
-                    return _isInstanceOf(error, HttpError) ? error : _isInstanceOf(error, Error) ? new HttpError(status, error.message || statusText) : new HttpError(status, statusText);
+                    return _isBlob(argc)
+                        || _isFormData(argc)
+                        || _isArrayBuffer(argc)
+                        || _isArrayBufferView(argc)
+                        || _isURLSearchParams(argc)
+                        || _isBasic(argc) ? false : true;
+                }
+                /**
+                 * 
+                 * @param {string} url 
+                 * @param {XMLHttpRequest} xhr 
+                 * @param {Headers | Yarla.KVPair<string | ReadonlyArray<string>> | Yarla.AnyObject<string | ReadonlyArray<string>>} headers 
+                 * @param {Yarla.xhr.ResponseType} responseType 
+                 * @param {any} body 
+                 */
+                function serializeError(
+                    url,
+                    xhr,
+                    headers,
+                    responseType,
+                    body
+                ) {
+                    if (_isInstanceOf(xhr.response, ResponseError)) {
+                        return xhr.response;
+                    }
+                    return new ResponseError({
+                        url: url,
+                        xhr: xhr,
+                        body: body,
+                        responseType: responseType,
+                        response: xhr.response || xhr.responseText || null,
+                        headers: _isInstanceOf(headers, KVPair) ? headers.toJSON() : new KVPair(headers, true).toJSON(),
+                    }, xhr.status, _isInstanceOf(xhr.response, Error) ? xhr.response.message : xhr.statusText);
                 }
             }
         ),
@@ -14618,6 +15235,7 @@
         isDate: _isDate,
         isNull: _isNull,
         isNullOrUndefined: _isNullOrUndefined,
+        _isNullOrEmptyArray: _isNullOrEmptyArray,
         isNullOrEmptyString: _isNullOrEmptyString,
         isNullOrEmptyObject: _isNullOrEmptyObject,
         isUndefined: _isUndefined,
@@ -14635,9 +15253,13 @@
         isArrayBufferView: _isArrayBufferView,
         isArrayBuffer: _isArrayBuffer,
         isFormData: _isFormData,
+        isReadable: _isReadable,
+        isWritable: _isWritable,
+        isHeaders: _isHeaders,
         isBlob: _isBlob,
         atob: _atob,
         btoa: _btoa,
+        read: _read$1,
     };
 
     exports.Buffer = Buffer;
@@ -14678,17 +15300,20 @@
     exports.isFinite = _isFinite;
     exports.isFormData = _isFormData;
     exports.isFunction = _isFunction;
+    exports.isHeaders = _isHeaders;
     exports.isInstanceOf = _isInstanceOf;
     exports.isInteger = _isInteger;
     exports.isIterable = _isIterable;
     exports.isJsonContent = _isJsonContent;
     exports.isNaN = _isNaN;
     exports.isNull = _isNull;
+    exports.isNullOrEmptyArray = _isNullOrEmptyArray;
     exports.isNullOrEmptyObject = _isNullOrEmptyObject;
     exports.isNullOrEmptyString = _isNullOrEmptyString;
     exports.isNullOrUndefined = _isNullOrUndefined;
     exports.isNumber = _isNumber;
     exports.isObject = _isObject;
+    exports.isReadable = _isReadable;
     exports.isReference = _isReference;
     exports.isRegExp = _isRegExp;
     exports.isSafeInteger = _isSafeInteger;
@@ -14698,6 +15323,7 @@
     exports.isURLSearchParams = _isURLSearchParams;
     exports.isUndefined = _isUndefined;
     exports.isValid = _isValid;
+    exports.isWritable = _isWritable;
     exports.keys = _keys;
     exports.koa = koa;
     exports.memo = memo;
@@ -14707,6 +15333,7 @@
     exports.pattern = pattern;
     exports.pick = _pick;
     exports.queries = queries;
+    exports.read = _read$1;
     exports.salt = _salt;
     exports.set = _set;
     exports.setImmediate = setImmediate;
