@@ -131,6 +131,7 @@ export default defineProperties(generateClass(Reflect.BASE, {
             } else {
                 del(t, k);
             }
+            d[k[0]] = d[k[0]] || {};
             return Promise.resolve();
         }
     ),

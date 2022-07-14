@@ -11318,6 +11318,7 @@
                 } else {
                     _delete$1(t, k);
                 }
+                d[k[0]] = d[k[0]] || {};
                 return Promise$1.resolve();
             }
         ),
@@ -13091,105 +13092,107 @@
                                 });
                                 return visitValidator.validate(ctx).then(function (VISITABLE) {
                                     return tokenGenerator.generate(ctx).then(function (TOKEN) {
-                                        if (VISITABLE) {
-                                            for (var
-                                                i = 0,
-                                                l = ACTION.length;
-                                                i < l;
-                                                i++
-                                            ) {
-                                                if (contain(ARGCM, ACTION[i].method) && _glob(ACTION[i].path).test(ARGCP)) {
-                                                    return ACTION[i].listen(ctx, Session.init(TOKEN, sessionStorage));
-                                                }
-                                            }
-                                            if (ARGCM === "GET" ||
-                                                ARGCM === "HEAD" ||
-                                                ARGCM === "OPTIONS") {
-                                                var pathname;
-                                                if (compareIgnoreCase(ARGCP, "/")) {
-                                                    pathname = normalize("index.html");
-                                                    if (_isFile(pathname)) {
-                                                        return new _RedirectResult("/index.html");
-                                                    }
-                                                }
-                                                if (compareIgnoreCase(ARGCP, "/index.html")) {
-                                                    pathname = normalize("index.html");
-                                                    if (_isFile(pathname)) {
-                                                        return new _FileResult(pathname);
-                                                    }
-                                                }
-                                                if (compareIgnoreCase(ARGCP, "/favicon.ico")) {
-                                                    pathname = normalize(FAVICON);
-                                                    if (_isFile(pathname)) {
-                                                        return new _FileResult(pathname);
-                                                    }
-                                                }
-                                                if (compareIgnoreCase(ARGCP, "/sitemap.xml")) {
-                                                    pathname = normalize(SITEMAP);
-                                                    if (_isFile(pathname)) {
-                                                        return new _FileResult(pathname);
-                                                    }
-                                                }
-                                                if (compareIgnoreCase(ARGCP, "/robots.txt")) {
-                                                    pathname = normalize(ROBOTS);
-                                                    if (_isFile(pathname)) {
-                                                        return new _FileResult(pathname);
-                                                    }
-                                                }
+                                        return sessionStorage.heartbeat(TOKEN).then(function () {
+                                            if (VISITABLE) {
                                                 for (var
                                                     i = 0,
-                                                    l = MODULE.length;
+                                                    l = ACTION.length;
                                                     i < l;
                                                     i++
                                                 ) {
-                                                    var MODED = MODULE[i].dist;
-                                                    var MODEI = MODULE[i].ignore;
-                                                    var MODES = MODULE[i].static;
-                                                    var MODEE = MODULE[i].extnames;
-                                                    var MODEC = MODULE[i].compiler;
-                                                    if (cognate(ARGCP, MODED)) {
-                                                        if (_isFunction(MODEI)) {
-                                                            if (MODEI.call(MODULE[i], ARGCP, ctx)) {
-                                                                return insurance(ARGCP);
-                                                            }
-                                                        }
-                                                        pathname = normalize(ARGCP);
-                                                        var name = _find(pathname, MODEE || HTTP_EXTNAMES);
-                                                        if (name) {
-                                                            if (compareIgnoreCase(pathname, name)) {
-                                                                if (_isFunction(MODES)) {
-                                                                    if (MODES.call(MODULE[i], ARGCP, ctx)) {
-                                                                        return new _FileResult(name);
-                                                                    }
-                                                                }
-                                                                return translate(name, MODEC);
-                                                            }
-                                                            return new _RedirectResult(
-                                                                relative(name)
-                                                            );
-                                                        }
+                                                    if (contain(ARGCM, ACTION[i].method) && _glob(ACTION[i].path).test(ARGCP)) {
+                                                        return ACTION[i].listen(ctx, Session.init(TOKEN, sessionStorage));
                                                     }
                                                 }
-                                                for (var
-                                                    i = 0,
-                                                    l = PUBLIC.length;
-                                                    i < l;
-                                                    i++
-                                                ) {
-                                                    if (cognate(ARGCP, PUBLIC[i])) {
-                                                        pathname = normalize(ARGCP);
+                                                if (ARGCM === "GET" ||
+                                                    ARGCM === "HEAD" ||
+                                                    ARGCM === "OPTIONS") {
+                                                    var pathname;
+                                                    if (compareIgnoreCase(ARGCP, "/")) {
+                                                        pathname = normalize("index.html");
+                                                        if (_isFile(pathname)) {
+                                                            return new _RedirectResult("/index.html");
+                                                        }
+                                                    }
+                                                    if (compareIgnoreCase(ARGCP, "/index.html")) {
+                                                        pathname = normalize("index.html");
                                                         if (_isFile(pathname)) {
                                                             return new _FileResult(pathname);
                                                         }
                                                     }
+                                                    if (compareIgnoreCase(ARGCP, "/favicon.ico")) {
+                                                        pathname = normalize(FAVICON);
+                                                        if (_isFile(pathname)) {
+                                                            return new _FileResult(pathname);
+                                                        }
+                                                    }
+                                                    if (compareIgnoreCase(ARGCP, "/sitemap.xml")) {
+                                                        pathname = normalize(SITEMAP);
+                                                        if (_isFile(pathname)) {
+                                                            return new _FileResult(pathname);
+                                                        }
+                                                    }
+                                                    if (compareIgnoreCase(ARGCP, "/robots.txt")) {
+                                                        pathname = normalize(ROBOTS);
+                                                        if (_isFile(pathname)) {
+                                                            return new _FileResult(pathname);
+                                                        }
+                                                    }
+                                                    for (var
+                                                        i = 0,
+                                                        l = MODULE.length;
+                                                        i < l;
+                                                        i++
+                                                    ) {
+                                                        var MODED = MODULE[i].dist;
+                                                        var MODEI = MODULE[i].ignore;
+                                                        var MODES = MODULE[i].static;
+                                                        var MODEE = MODULE[i].extnames;
+                                                        var MODEC = MODULE[i].compiler;
+                                                        if (cognate(ARGCP, MODED)) {
+                                                            if (_isFunction(MODEI)) {
+                                                                if (MODEI.call(MODULE[i], ARGCP, ctx)) {
+                                                                    return insurance(ARGCP);
+                                                                }
+                                                            }
+                                                            pathname = normalize(ARGCP);
+                                                            var name = _find(pathname, MODEE || HTTP_EXTNAMES);
+                                                            if (name) {
+                                                                if (compareIgnoreCase(pathname, name)) {
+                                                                    if (_isFunction(MODES)) {
+                                                                        if (MODES.call(MODULE[i], ARGCP, ctx)) {
+                                                                            return new _FileResult(name);
+                                                                        }
+                                                                    }
+                                                                    return translate(name, MODEC);
+                                                                }
+                                                                return new _RedirectResult(
+                                                                    relative(name)
+                                                                );
+                                                            }
+                                                        }
+                                                    }
+                                                    for (var
+                                                        i = 0,
+                                                        l = PUBLIC.length;
+                                                        i < l;
+                                                        i++
+                                                    ) {
+                                                        if (cognate(ARGCP, PUBLIC[i])) {
+                                                            pathname = normalize(ARGCP);
+                                                            if (_isFile(pathname)) {
+                                                                return new _FileResult(pathname);
+                                                            }
+                                                        }
+                                                    }
                                                 }
+                                                if (EMPTY) {
+                                                    return new _EmptyResult();
+                                                }
+                                                return new _NotFoundResult();
                                             }
-                                            if (EMPTY) {
-                                                return new _EmptyResult();
-                                            }
-                                            return new _NotFoundResult();
-                                        }
-                                        return new _ForbiddenResult();
+                                            return new _ForbiddenResult();
+                                        });
                                     });
                                 }).then(function (result) {
                                     var PATH;
