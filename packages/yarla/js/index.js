@@ -11387,13 +11387,14 @@
                 ) {
                     /** @type {string} */
                     var ARGCS = Reflect.getInternal(this).opts.secret;
-                    var TOKEN = context.getRequestCookie("X-HTTP-ID");
+                    var OAUTH = context.getRequestHeader(httpHeader.AUTHORIZATION);
+                    var TOKEN = startsWith(OAUTH, "Bearer ") ? OAUTH.slice(7) : context.getRequestCookie("X-HTTP-ID");
                     if (!validate(TOKEN, ARGCS)) {
                         context.setResponseCookie("X-HTTP-ID", TOKEN = generate(_salt(64), ARGCS), { httpOnly: true });
                     }
                     return Promise$1.resolve(TOKEN);
                 }
-            )
+            ),
         }, NOOP, "TokenGenerator"), {
             init: generateMethodDescriptor(
                 /**

@@ -1,10 +1,12 @@
 import NOOP from "@yarlajs/core/module/constant/NOOP/index.js";
 import crypto from "@yarlajs/core/module/internal/crypto/index.js";
+import httpHeader from "@yarlajs/core/module/constant/httpHeader/index.js";
 import definition from "@yarlajs/core/module/constant/definition/index.js";
 import defineProperties from "@yarlajs/core/module/standard/defineProperties/index.js";
 import compareTimingSafe from "@yarlajs/core/module/standard/compareTimingSafe/index.js";
 import generateMethodDescriptor from "@yarlajs/core/module/standard/generateMethodDescriptor/index.js";
 import generateClass from "@yarlajs/core/module/standard/generateClass/index.js";
+import startsWith from "@yarlajs/core/module/standard/startsWith/index.js";
 import Promise from "@yarlajs/core/lib/Promise/index.js";
 import Reflect from "@yarlajs/core/lib/Reflect/index.js";
 import salt from "@yarlajs/core/lib/salt/index.js";
@@ -24,13 +26,14 @@ export default (function () {
             ) {
                 /** @type {string} */
                 var ARGCS = Reflect.getInternal(this).opts.secret;
-                var TOKEN = context.getRequestCookie("X-HTTP-ID");
+                var OAUTH = context.getRequestHeader(httpHeader.AUTHORIZATION);
+                var TOKEN = startsWith(OAUTH, "Bearer ") ? OAUTH.slice(7) : context.getRequestCookie("X-HTTP-ID");
                 if (!validate(TOKEN, ARGCS)) {
                     context.setResponseCookie("X-HTTP-ID", TOKEN = generate(salt(64), ARGCS), { httpOnly: true });
                 }
                 return Promise.resolve(TOKEN);
             }
-        )
+        ),
     }, NOOP, "TokenGenerator"), {
         init: generateMethodDescriptor(
             /**
