@@ -1,4 +1,5 @@
 import message from "@yarlajs/core/module/constant/message/index.js";
+import globalThis from "@yarlajs/core/module/internal/globalThis/index.js";
 import httpHeader from "@yarlajs/core/module/constant/httpHeader/index.js";
 import defineProperties from "@yarlajs/core/module/standard/defineProperties/index.js";
 import skrinkSerializer from "@yarlajs/core/module/standard/skrinkSerializer/index.js";
@@ -7,6 +8,7 @@ import inlineSourceMap from "@yarlajs/core/module/standard/inlineSourceMap/index
 import isJsonContent from "@yarlajs/core/lib/isJsonContent/index.js";
 import isUndefined from "@yarlajs/core/lib/isUndefined/index.js";
 import isFunction from "@yarlajs/core/lib/isFunction/index.js";
+import isObject from "@yarlajs/core/lib/isObject/index.js";
 import Promise from "@yarlajs/core/lib/Promise/index.js";
 import flat from "@yarlajs/core/lib/flat/index.js";
 import resolve from "../resolve/index.js";
@@ -27,7 +29,7 @@ export default (function () {
             name,
             esModules
         ) {
-            return definition(".", name, ["yarla"].concat(esModules || []));
+            return definition(".", name, esModules || []);
         }
     );
     /**
@@ -104,7 +106,12 @@ export default (function () {
         if (modname in module) {
             return Promise.resolve(module[modname]);
         }
-        if (esModules.indexOf(modname) !== -1) {
+        if (modname === "yarla") {
+            if (isObject(globalThis.Yarla)) {
+                return Promise.resolve({ exports: globalThis.Yarla });
+            }
+        }
+        if (modname === "yarla" || esModules.indexOf(modname) !== -1) {
             try {
                 return Function("return import('" + modname + "').then(v=>({exports:v}))").call(null);
             } catch (_) {
