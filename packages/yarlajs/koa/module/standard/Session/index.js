@@ -37,7 +37,7 @@ export default defineProperties(generateClass(Reflect.BASE, {
          * @returns {Promise<any>}
          */
         function (key, value) {
-            return Reflect.getInternal(this).os.get(this.id, key, value);
+            return Reflect.getInternal(this).os.set(this.id, key, value);
         }
     ),
 }, NOOP, "Session"), {
