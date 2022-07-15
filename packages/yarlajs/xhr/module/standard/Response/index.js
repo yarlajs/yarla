@@ -10,6 +10,7 @@ import generateNormalDescriptor from "@yarlajs/core/module/standard/generateNorm
 import generateClass from "@yarlajs/core/module/standard/generateClass/index.js";
 import isJsonContent from "@yarlajs/core/lib/isJsonContent/index.js";
 import concatUrl from "@yarlajs/core/lib/concatUrl/index.js";
+import isString from "@yarlajs/core/lib/isString/index.js";
 import isArray from "@yarlajs/core/lib/isArray/index.js";
 import Reflect from "@yarlajs/core/lib/Reflect/index.js";
 import KVPair from "@yarlajs/core/lib/KVPair/index.js";
@@ -77,6 +78,11 @@ export default defineProperties(generateClass(Reflect.BASE, {
                 response: generateNormalDescriptor((function () {
                     try {
                         if ("response" in xhr) {
+                            if (responseType === "json") {
+                                if (isString(xhr.response)) {
+                                    return xhr.response ? JSON.parse(xhr.response) : null;
+                                }
+                            }
                             return xhr.response;
                         }
                         if (responseType === "text") {

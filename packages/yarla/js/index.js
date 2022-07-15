@@ -14671,6 +14671,11 @@
                     response: generateNormalDescriptor((function () {
                         try {
                             if ("response" in xhr) {
+                                if (responseType === "json") {
+                                    if (_isString(xhr.response)) {
+                                        return xhr.response ? JSON.parse(xhr.response) : null;
+                                    }
+                                }
                                 return xhr.response;
                             }
                             if (responseType === "text") {
