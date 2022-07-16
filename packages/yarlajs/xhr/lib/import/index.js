@@ -151,7 +151,7 @@ export default (function () {
                     func: func,
                 });
             }), {
-                amd: generateNormalDescriptor(true),
+                amd: generateNormalDescriptor({}),
             }));
             return instance || Promise.reject(new Error(message.INVALID_MODULE + ": " + filename));
         });

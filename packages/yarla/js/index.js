@@ -15097,7 +15097,7 @@
                         func: func,
                     });
                 }), {
-                    amd: generateNormalDescriptor(true),
+                    amd: generateNormalDescriptor({}),
                 }));
                 return instance || Promise$1.reject(new Error(message.INVALID_MODULE + ": " + filename));
             });
