@@ -174,10 +174,14 @@ declare namespace koa {
     }
     export interface Module {
         readonly dist: string;
+        readonly resolver?: Resolver;
         readonly compiler?: Compiler;
         readonly extnames?: ReadonlyArray<string>;
         readonly ignore?: (pathname: string, context: Context) => boolean;
         readonly static?: (pathname: string, context: Context) => boolean;
+    }
+    export interface Resolver {
+        (pathname: string, context: Context): string;
     }
     export interface Compiler {
         (content: string, filename: string, defaultCompiler: DefaultCompiler): string | PromiseLike<string>;

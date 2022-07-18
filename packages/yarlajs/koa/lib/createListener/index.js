@@ -174,23 +174,28 @@ export default (function () {
                                                     i < l;
                                                     i++
                                                 ) {
+                                                    var TRACK = ARGCP;
                                                     var MODED = MODULE[i].dist;
                                                     var MODEI = MODULE[i].ignore;
                                                     var MODES = MODULE[i].static;
                                                     var MODEE = MODULE[i].extnames;
                                                     var MODEC = MODULE[i].compiler;
-                                                    if (cognate(ARGCP, MODED)) {
+                                                    var MODER = MODULE[i].resolver;
+                                                    if (cognate(TRACK, MODED)) {
+                                                        if (isFunction(MODER)) {
+                                                            TRACK = MODER.call(MODULE[i], TRACK, ctx);
+                                                        }
                                                         if (isFunction(MODEI)) {
-                                                            if (MODEI.call(MODULE[i], ARGCP, ctx)) {
-                                                                return insurance(ARGCP);
+                                                            if (MODEI.call(MODULE[i], TRACK, ctx)) {
+                                                                return insurance(TRACK);
                                                             }
                                                         }
-                                                        pathname = normalize(ARGCP);
+                                                        pathname = normalize(TRACK);
                                                         var name = find(pathname, MODEE || HTTP_EXTNAMES);
                                                         if (name) {
                                                             if (compareIgnoreCase(pathname, name)) {
                                                                 if (isFunction(MODES)) {
-                                                                    if (MODES.call(MODULE[i], ARGCP, ctx)) {
+                                                                    if (MODES.call(MODULE[i], TRACK, ctx)) {
                                                                         return new FileResult(name);
                                                                     }
                                                                 }
