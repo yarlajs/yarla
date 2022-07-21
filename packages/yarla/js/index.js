@@ -11318,7 +11318,6 @@
                 } else {
                     _delete$1(t, k);
                 }
-                d[k[0]] = d[k[0]] || {};
                 return Promise$1.resolve();
             }
         ),
