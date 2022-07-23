@@ -15058,7 +15058,7 @@
                     return Promise$1.resolve({ exports: globalThis.Yarla });
                 }
             }
-            if (modname === "yarla" || esModules.indexOf(modname) !== -1) {
+            if (modname === "yarla" || modname.indexOf("@yarlajs/") === 0 || esModules.indexOf(modname) !== -1) {
                 try {
                     return Function("return import('" + modname + "').then(v=>({exports:v}))").call(null);
                 } catch (_) {
