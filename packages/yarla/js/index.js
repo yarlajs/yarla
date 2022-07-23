@@ -12713,10 +12713,7 @@
         if (esm) {
             return tsTranspile(content, filename);
         }
-        if (cjs) {
-            return "define(" + JSON.stringify(["require", "exports", "module"].concat(dependencies)) + ",function(require,exports,module){\n" + inlineSourceMap(content, 1) + "\n});";
-        }
-        return content;
+        return "define(" + JSON.stringify(["require", "exports", "module"].concat(cjs ? dependencies : [])) + ",function(require,exports,module){\n" + inlineSourceMap(content, 1) + "\n});";
     }
 
     var HTTP_MIMETYPE = {
@@ -13005,7 +13002,7 @@
             var position = _resolve$1(filename, "package.json");
             if (_isFile(position)) {
                 var info = JSON.parse(_readFileSync(position).toString(definition.UTF8));
-                var main = info.main;
+                var main = info.module || info.main;
                 if (_isString(main)) {
                     return loadAll(_resolve$1(filename, main), extnames);
                 }

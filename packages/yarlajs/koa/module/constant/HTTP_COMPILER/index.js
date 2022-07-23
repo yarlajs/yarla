@@ -485,8 +485,5 @@ function jsTranspile(
     if (esm) {
         return tsTranspile(content, filename);
     }
-    if (cjs) {
-        return "define(" + JSON.stringify(["require", "exports", "module"].concat(dependencies)) + ",function(require,exports,module){\n" + inlineSourceMap(content, 1) + "\n});";
-    }
-    return content;
+    return "define(" + JSON.stringify(["require", "exports", "module"].concat(cjs ? dependencies : [])) + ",function(require,exports,module){\n" + inlineSourceMap(content, 1) + "\n});";
 }

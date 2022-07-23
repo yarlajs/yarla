@@ -91,7 +91,7 @@ export default (function () {
         var position = resolve(filename, "package.json");
         if (isFile(position)) {
             var info = JSON.parse(readFileSync(position).toString(definition.UTF8));
-            var main = info.main;
+            var main = info.module || info.main;
             if (isString(main)) {
                 return loadAll(resolve(filename, main), extnames);
             }
