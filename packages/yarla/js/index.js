@@ -4412,6 +4412,37 @@
         }
     );
 
+    var _isNullOrEmptyString = skrinkSerializer(
+        /**
+         * 
+         * Determines if the input parameter is null or undefined or an empty string.
+         * 
+         * @param {any} argc Any object.
+         * @returns {argc is null | undefined | ""}
+         */
+        function (
+            argc
+        ) {
+            return _isNullOrUndefined(argc) || argc === "";
+        }
+    );
+
+    var _non = skrinkSerializer(
+        /**
+         * 
+         * Returns the unique values in the specified array.
+         * 
+         * @param {any[]} argc An array.
+         */
+        function (
+            argc
+        ) {
+            return argc.filter(function (i) {
+                return !_isNullOrEmptyString(i);
+            });
+        }
+    );
+
     var _delete$1 = skrinkSerializer(
         /**
          * 
@@ -4569,21 +4600,6 @@
             h1 = imul(h1, 0xC2B2AE35);
             h1 ^= h1 >>> 16;
             return h1 >>> 0;
-        }
-    );
-
-    var _isNullOrEmptyString = skrinkSerializer(
-        /**
-         * 
-         * Determines if the input parameter is null or undefined or an empty string.
-         * 
-         * @param {any} argc Any object.
-         * @returns {argc is null | undefined | ""}
-         */
-        function (
-            argc
-        ) {
-            return _isNullOrUndefined(argc) || argc === "";
         }
     );
 
@@ -15215,6 +15231,7 @@
         useRef: useRef,
         shadow: shadow,
         memo: memo,
+        non: _non,
         has: _has,
         get: _get$1,
         set: _set,
@@ -15344,6 +15361,7 @@
     exports.memo = memo;
     exports.merge = _merge;
     exports.nextTick = nextTick;
+    exports.non = _non;
     exports.omit = _omit;
     exports.pattern = pattern;
     exports.pick = _pick;

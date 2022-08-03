@@ -29,6 +29,7 @@ import _useRef from "./lib/useRef/index.js";
 import _shadow from "./lib/shadow/index.js";
 import _memo from "./lib/memo/index.js";
 import _zone from "./lib/zone/index.js";
+import _non from "./lib/non/index.js";
 import _has from "./lib/has/index.js";
 import _get from "./lib/get/index.js";
 import _set from "./lib/set/index.js";
@@ -122,6 +123,7 @@ export {
     _shadow as shadow,
     _memo as memo,
     _zone as zone,
+    _non as non,
     _has as has,
     _get as get,
     _set as set,
