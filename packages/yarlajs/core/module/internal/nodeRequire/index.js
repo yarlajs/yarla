@@ -32,5 +32,10 @@
 module.exports = function (
     id
 ) {
-    return typeof require !== "undefined" ? require( /* webpackIgnore: true */ id) : null;
+    try {
+        return typeof require !== "undefined" ? require( /* webpackIgnore: true */ id) : null;
+    } catch (_) {
+        // @ts-ignore
+        return null;
+    }
 }
