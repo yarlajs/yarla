@@ -120,14 +120,20 @@ export default ( /** @param {typeof File} File */ function (File) {
                     end
                 ) {
                     if (isUndefined(start)) {
-                        start = 0;
-                    }
-                    var size;
-                    if (isUndefined(end)) {
-                        size = this.size - start;
+                        start = this.start;
+                    } else if (start >= 0) {
+                        start = this.start + start;
                     } else {
-                        size = end - start;
+                        start = this.size + start;
                     }
+                    if (isUndefined(end)) {
+                        end = this.size;
+                    } else if (end >= 0) {
+                        end = this.start + end;
+                    } else {
+                        end = this.size + end;
+                    }
+                    var size = end - start;
                     return new File([], this.path, {
                         type: this.type,
                         lastModified: this.lastModified,

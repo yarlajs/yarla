@@ -13944,14 +13944,20 @@
                         end
                     ) {
                         if (_isUndefined(start)) {
-                            start = 0;
-                        }
-                        var size;
-                        if (_isUndefined(end)) {
-                            size = this.size - start;
+                            start = this.start;
+                        } else if (start >= 0) {
+                            start = this.start + start;
                         } else {
-                            size = end - start;
+                            start = this.size + start;
                         }
+                        if (_isUndefined(end)) {
+                            end = this.size;
+                        } else if (end >= 0) {
+                            end = this.start + end;
+                        } else {
+                            end = this.size + end;
+                        }
+                        var size = end - start;
                         return new File([], this.path, {
                             type: this.type,
                             lastModified: this.lastModified,
@@ -14503,6 +14509,16 @@
         }
         /**
          * 
+         * @param {any} argc 
+         * @returns {argc is Blob | File}
+         */
+        function isChunk(
+            argc
+        ) {
+            return _isBlob(argc) || className(argc) === "Blob" || className(argc) === "File";
+        }
+        /**
+         * 
          * @param {import("http").ClientRequest} argc 
          * @param {any} body 
          * @param {string} boundary 
@@ -14520,7 +14536,7 @@
                 serial(argc, serialize(body, boundary));
             } else if (_isBasic(body)) {
                 argc.end(String(body));
-            } else if (_isBlob(body)) {
+            } else if (isChunk(body)) {
                 body.stream().pipe(argc);
             } else {
                 argc.end(body);
@@ -14539,7 +14555,7 @@
                 var name = value[0];
                 var data = value[1];
                 var head = "Content-Disposition: form-data; name=\"" + encodeURIComponent(name) + "\"";
-                if (_isBlob(data)) {
+                if (isChunk(data)) {
                     if (data.name) {
                         head += "; filename=\"" + encodeURIComponent(data.name) + "\"";
                     }
@@ -14566,7 +14582,7 @@
         ) {
             var item = body.shift();
             if (item) {
-                if (_isBlob(item)) {
+                if (isChunk(item)) {
                     stream.Readable.from(
                         item.stream()
                     ).on("end", function () {

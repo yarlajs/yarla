@@ -15,6 +15,7 @@ import generateGetterDescriptor from "@yarlajs/core/module/standard/generateGett
 import generateMethodDescriptor from "@yarlajs/core/module/standard/generateMethodDescriptor/index.js";
 import generateNormalDescriptor from "@yarlajs/core/module/standard/generateNormalDescriptor/index.js";
 import generateClass from "@yarlajs/core/module/standard/generateClass/index.js";
+import className from "@yarlajs/core/module/standard/className/index.js";
 import isNullOrUndefined from "@yarlajs/core/lib/isNullOrUndefined/index.js";
 import isURLSearchParams from "@yarlajs/core/lib/isURLSearchParams/index.js";
 import ReadableStream from "@yarlajs/core/lib/ReadableStream/index.js";
@@ -461,6 +462,16 @@ export default (function (XMLHttpRequest) {
     }
     /**
      * 
+     * @param {any} argc 
+     * @returns {argc is Blob | File}
+     */
+    function isChunk(
+        argc
+    ) {
+        return isBlob(argc) || className(argc) === "Blob" || className(argc) === "File";
+    }
+    /**
+     * 
      * @param {import("http").ClientRequest} argc 
      * @param {any} body 
      * @param {string} boundary 
@@ -478,7 +489,7 @@ export default (function (XMLHttpRequest) {
             serial(argc, serialize(body, boundary));
         } else if (isBasic(body)) {
             argc.end(String(body));
-        } else if (isBlob(body)) {
+        } else if (isChunk(body)) {
             body.stream().pipe(argc);
         } else {
             argc.end(body);
@@ -497,7 +508,7 @@ export default (function (XMLHttpRequest) {
             var name = value[0];
             var data = value[1];
             var head = "Content-Disposition: form-data; name=\"" + encodeURIComponent(name) + "\"";
-            if (isBlob(data)) {
+            if (isChunk(data)) {
                 if (data.name) {
                     head += "; filename=\"" + encodeURIComponent(data.name) + "\"";
                 }
@@ -524,7 +535,7 @@ export default (function (XMLHttpRequest) {
     ) {
         var item = body.shift();
         if (item) {
-            if (isBlob(item)) {
+            if (isChunk(item)) {
                 stream.Readable.from(
                     item.stream()
                 ).on("end", function () {
