@@ -5206,6 +5206,8 @@
         ACCESS_CONTROL_ALLOW_ORIGIN: "Access-Control-Allow-Origin",
         /** @type {"Access-Control-Max-Age"} */
         ACCESS_CONTROL_MAX_AGE: "Access-Control-Max-Age",
+        /** @type {"Content-Transfer-Encoding"} */
+        CONTENT_TRANSFER_ENCODING: "Content-Transfer-Encoding",
         /** @type {"Content-Disposition"} */
         CONTENT_DISPOSITION: "Content-Disposition",
         /** @type {"Content-Encoding"} */
@@ -13402,6 +13404,7 @@
                                         res.setHeader(httpHeader.CONTENT_TYPE, TYPE);
                                     }
                                     if (NAME) {
+                                        res.setHeader(httpHeader.CONTENT_TRANSFER_ENCODING, "binary");
                                         res.setHeader(httpHeader.CONTENT_DISPOSITION, [
                                             "attachment",
                                             "filename=" + (OLDER ? encodeURIComponent(NAME) : Buffer.from(NAME, definition.UTF8).toString(definition.LATIN1)),

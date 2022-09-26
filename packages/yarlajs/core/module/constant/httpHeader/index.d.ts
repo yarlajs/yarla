@@ -25,6 +25,7 @@ declare interface HTTPHeader {
     readonly ACCESS_CONTROL_ALLOW_METHODS: "Access-Control-Allow-Methods";
     readonly ACCESS_CONTROL_ALLOW_ORIGIN: "Access-Control-Allow-Origin";
     readonly ACCESS_CONTROL_MAX_AGE: "Access-Control-Max-Age";
+    readonly CONTENT_TRANSFER_ENCODING: "Content-Transfer-Encoding";
     readonly CONTENT_DISPOSITION: "Content-Disposition";
     readonly CONTENT_ENCODING: "Content-Encoding";
     readonly CONTENT_LENGTH: "Content-Length";

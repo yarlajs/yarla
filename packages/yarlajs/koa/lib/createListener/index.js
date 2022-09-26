@@ -415,6 +415,7 @@ export default (function () {
                                     res.setHeader(httpHeader.CONTENT_TYPE, TYPE);
                                 }
                                 if (NAME) {
+                                    res.setHeader(httpHeader.CONTENT_TRANSFER_ENCODING, "binary");
                                     res.setHeader(httpHeader.CONTENT_DISPOSITION, [
                                         "attachment",
                                         "filename=" + (OLDER ? encodeURIComponent(NAME) : Buffer.from(NAME, definition.UTF8).toString(definition.LATIN1)),
