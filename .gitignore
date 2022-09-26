@@ -3,5 +3,6 @@
 .idea
 .git
 .svn
+/tests
 /node_modules
 /yarn.lock

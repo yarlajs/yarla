@@ -14564,6 +14564,8 @@
                     }
                     if (data.type) {
                         head += "\r\nContent-Type: " + data.type;
+                    } else {
+                        head += "\r\nContent-Type: " + httpContent.OCTET_STREAM;
                     }
                 }
                 return [
