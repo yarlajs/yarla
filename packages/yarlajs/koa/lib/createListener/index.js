@@ -623,7 +623,7 @@ export default (function () {
                 opts && opts.module || HTTP_ASSEMBLY,
                 opts && opts.public || HTTP_RESOURCE,
                 opts && opts.accessCookieAllowOrigin || "Lax",
-                opts && opts.maxRequestContentLength || Math.pow(2, 30) - 1,
+                opts && opts.maxRequestContentLength || Math.pow(2, 30) * 2,
                 opts && opts.sessionStorage || createSessionStorage(),
                 opts && opts.tokenGenerator || createTokenGenerator(),
                 opts && opts.visitValidator || createVisitValidator(),

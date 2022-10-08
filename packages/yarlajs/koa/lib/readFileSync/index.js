@@ -13,7 +13,7 @@ export default skrinkSerializer(
         filename,
         maximum
     ) {
-        var l = Math.pow(2, 30) - 1;
+        var l = Math.pow(2, 30) * 4 - 1;
         var m = Math.min(maximum || l, l);
         if (statSync(filename).size > m) {
             throw new HttpError(413);

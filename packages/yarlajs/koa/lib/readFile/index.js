@@ -14,7 +14,7 @@ export default skrinkSerializer(
         filename,
         maximum
     ) {
-        var l = Math.pow(2, 30) - 1;
+        var l = Math.pow(2, 30) * 4 - 1;
         var m = Math.min(maximum || l, l);
         return new Promise(function (resolve, reject) {
             if (statSync(filename).size > m) {

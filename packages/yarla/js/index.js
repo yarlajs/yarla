@@ -5491,7 +5491,7 @@
             readable,
             maximum
         ) {
-            var l = Math.pow(2, 30) - 1;
+            var l = Math.pow(2, 30) * 4 - 1;
             var m = Math.min(maximum || l, l);
             return new Promise$1(function (resolve, reject) {
                 function large() {
@@ -12868,7 +12868,7 @@
             filename,
             maximum
         ) {
-            var l = Math.pow(2, 30) - 1;
+            var l = Math.pow(2, 30) * 4 - 1;
             var m = Math.min(maximum || l, l);
             if (_statSync(filename).size > m) {
                 throw new HttpError(413);
@@ -13612,7 +13612,7 @@
                     opts && opts.module || HTTP_ASSEMBLY,
                     opts && opts.public || HTTP_RESOURCE,
                     opts && opts.accessCookieAllowOrigin || "Lax",
-                    opts && opts.maxRequestContentLength || Math.pow(2, 30) - 1,
+                    opts && opts.maxRequestContentLength || Math.pow(2, 30) * 2,
                     opts && opts.sessionStorage || _createSessionStorage(),
                     opts && opts.tokenGenerator || _createTokenGenerator(),
                     opts && opts.visitValidator || _createVisitValidator(),
@@ -13757,7 +13757,7 @@
             filename,
             maximum
         ) {
-            var l = Math.pow(2, 30) - 1;
+            var l = Math.pow(2, 30) * 4 - 1;
             var m = Math.min(maximum || l, l);
             return new Promise$1(function (resolve, reject) {
                 if (_statSync(filename).size > m) {
@@ -14433,6 +14433,7 @@
                                     break;
                             }
                             if (req) {
+                                req.useChunkedEncodingByDefault = true; //
                                 req.once("timeout", finishTimeout);
                                 req.once("error", finishFailure);
                                 end(req, body, boundary);
