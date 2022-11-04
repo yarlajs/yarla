@@ -131,7 +131,7 @@ declare namespace koa {
         new(): NotFoundResult;
     }
     export interface ForbiddenResult extends NoneResult {
-        readonly status: 404;
+        readonly status: 403;
     }
     export interface ForbiddenResultConstructor extends Yarla.Proto<ForbiddenResult> {
         new(): ForbiddenResult;
