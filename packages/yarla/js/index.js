@@ -14433,7 +14433,6 @@
                                     break;
                             }
                             if (req) {
-                                req.useChunkedEncodingByDefault = true; //
                                 req.once("timeout", finishTimeout);
                                 req.once("error", finishFailure);
                                 end(req, body, boundary);

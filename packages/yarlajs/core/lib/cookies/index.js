@@ -3,8 +3,6 @@ import skrinkSerializer from "../../module/standard/skrinkSerializer/index.js";
 import isNumber from "../isNumber/index.js";
 import isString from "../isString/index.js";
 import isDate from "../isDate/index.js";
-import atob from "../atob/index.js";
-import btoa from "../btoa/index.js";
 
 export default {
     parse: skrinkSerializer(
@@ -37,8 +35,8 @@ export default {
                     v = v.slice(1, -1);
                 }
                 r[
-                    atob(k, true)
-                ] = atob(v, true);
+                    k
+                ] = v;
             }
             return r;
         }
@@ -67,8 +65,8 @@ export default {
                 HTTPONLY,
                 SECURE
             ) {
-                var k = btoa(String(name), true);
-                var v = btoa(String(value), true);
+                var k = String(name);
+                var v = String(value);
                 if (SAMESITE === "None" && isString(UA)) {
                     if (
                         (
