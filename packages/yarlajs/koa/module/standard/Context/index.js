@@ -192,7 +192,10 @@ export default (function () {
                     if (loc !== -1) {
                         http = http.slice(0, loc);
                     }
-                    return http;
+                    if (http.toLowerCase().includes("https")) {
+                        return definition.HTTPS;
+                    }
+                    return definition.HTTP;
                 });
             }
         ),
