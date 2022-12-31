@@ -19381,7 +19381,7 @@
                                 });
                                 return visitValidator.validate(ctx).then(function (VISITABLE) {
                                     return tokenGenerator.generate(ctx).then(function (TOKEN) {
-                                        return sessionStorage.heartbeat(TOKEN).then(function () {
+                                        return sessionStorage.heartbeat(TOKEN, ctx).then(function () {
                                             if (VISITABLE) {
                                                 for (var
                                                     i = 0,

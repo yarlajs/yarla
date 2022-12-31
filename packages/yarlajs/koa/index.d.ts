@@ -150,7 +150,7 @@ declare namespace koa {
         has(token: string): Promise<boolean>;
         get(token: string, key: string): Promise<any>;
         set<T>(token: string, key: string, value: T): Promise<T>;
-        heartbeat(token: string): Promise<void>;
+        heartbeat(token: string, context?: Context): Promise<void>;
     }
     export interface SessionStorageInitializationOptions {
         readonly expire: number;
