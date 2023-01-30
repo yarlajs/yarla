@@ -24,6 +24,7 @@ import isTextContent from "@yarlajs/core/lib/isTextContent/index.js";
 import isFormData from "@yarlajs/core/lib/isFormData/index.js";
 import Reflect from "@yarlajs/core/lib/Reflect/index.js";
 import entries from "@yarlajs/core/lib/entries/index.js";
+import pattern from "@yarlajs/core/lib/pattern/index.js";
 import isBasic from "@yarlajs/core/lib/isBasic/index.js";
 import isBlob from "@yarlajs/core/lib/isBlob/index.js";
 import KVPair from "@yarlajs/core/lib/KVPair/index.js";
@@ -360,7 +361,7 @@ export default (function (XMLHttpRequest) {
                         var req = null;
                         var ini = {
                             port: responseURL.port,
-                            host: responseURL.hostname,
+                            host: solved(responseURL.hostname),
                             path: responseURL.pathname + responseURL.search,
                             rejectUnauthorized: false,
                             headers: headers.toJSON(),
@@ -491,7 +492,7 @@ export default (function (XMLHttpRequest) {
         } else if (isBasic(body)) {
             argc.end(String(body));
         } else if (isChunk(body)) {
-            body.stream().pipe(argc);
+            stream.Readable.from(body.stream()).pipe(argc);
         } else {
             argc.end(body);
         }
@@ -564,5 +565,12 @@ export default (function (XMLHttpRequest) {
         } else {
             argc.end();
         }
+    }
+    /**
+     * 
+     * @param {string} hostname 
+     */
+    function solved(hostname) {
+        return hostname.charAt(0) === "[" && hostname.charAt(hostname.length - 1) === "]" && pattern.IPV6.test(hostname.slice(1, -1)) ? hostname.slice(1, -1) : hostname;
     }
 }(globalThis.XMLHttpRequest));

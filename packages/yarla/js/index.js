@@ -24806,7 +24806,7 @@
                             var req = null;
                             var ini = {
                                 port: responseURL.port,
-                                host: responseURL.hostname,
+                                host: solved(responseURL.hostname),
                                 path: responseURL.pathname + responseURL.search,
                                 rejectUnauthorized: false,
                                 headers: headers.toJSON(),
@@ -24937,7 +24937,7 @@
             } else if (isBasic(body)) {
                 argc.end(String(body));
             } else if (isChunk(body)) {
-                body.stream().pipe(argc);
+                stream.Readable.from(body.stream()).pipe(argc);
             } else {
                 argc.end(body);
             }
@@ -25010,6 +25010,13 @@
             } else {
                 argc.end();
             }
+        }
+        /**
+         * 
+         * @param {string} hostname 
+         */
+        function solved(hostname) {
+            return hostname.charAt(0) === "[" && hostname.charAt(hostname.length - 1) === "]" && pattern.IPV6.test(hostname.slice(1, -1)) ? hostname.slice(1, -1) : hostname;
         }
     }(globalThis.XMLHttpRequest));
 
