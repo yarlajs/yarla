@@ -19563,9 +19563,9 @@
                                     if (isInstanceOf$1(result, _JsonResult)) {
                                         TYPE = MIMETYPE.json || HTTP_MIMETYPE.json;
                                         DATA = Buffer$1.from(JSON.stringify({
-                                            message: result.message,
+                                            message: result.message || "",
+                                            code: result.code || 0,
                                             data: result.data,
-                                            code: result.code,
                                         }), definition$1.UTF8);
                                         SIZE = DATA.length;
                                     }

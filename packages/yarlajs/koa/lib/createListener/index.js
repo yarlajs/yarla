@@ -304,9 +304,9 @@ export default (function () {
                                 if (isInstanceOf(result, JsonResult)) {
                                     TYPE = MIMETYPE.json || HTTP_MIMETYPE.json;
                                     DATA = Buffer.from(JSON.stringify({
-                                        message: result.message,
+                                        message: result.message || "",
+                                        code: result.code || 0,
                                         data: result.data,
-                                        code: result.code,
                                     }), definition.UTF8);
                                     SIZE = DATA.length;
                                 }
