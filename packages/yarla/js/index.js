@@ -24830,8 +24830,14 @@
                             }
                             if (req) {
                                 req.useChunkedEncodingByDefault = true; //
-                                req.once("timeout", finishTimeout);
-                                req.once("error", finishFailure);
+                                req.once("timeout", function () {
+                                    req.destroy(new Error(message.TIMEOUT));
+                                    finishTimeout();
+                                });
+                                req.once("error", function (error) {
+                                    req.destroy(error);
+                                    finishFailure(error);
+                                });
                                 end(req, body, boundary);
                             }
                             xhr.req = req;
